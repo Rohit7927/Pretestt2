@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title id="page-title">Loading CSAT Test...</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* --- GLOBAL & RESET --- */
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Roboto', sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* 🌟 FULL SCREEN LOADER (Dynamic Fetching) */
+        #global-loader {
+            position: fixed; inset: 0; background: #fff; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #ff9800; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- INSTRUCTIONS POP-UP --- */
+        #instruction-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 15px; }
+        .ins-card { width: 100%; max-width: 600px; background: #fff; padding: 20px; border: 1px solid #ddd; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; height: 85vh; }
+        .ins-logo { width: 60px; height: 60px; display: block; margin: 0 auto 10px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .ins-content { flex: 1; overflow-y: auto; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #eee; }
+        .ins-content h2 { margin-top: 0; color: #ff9800; border-bottom: 2px solid #ff9800; padding-bottom: 8px; font-size: 1.2rem; }
+        .ins-content ul { padding-left: 18px; line-height: 1.6; color: #444; font-size: 0.95rem; }
+        .ins-content li { margin-bottom: 10px; }
+
+        /* BUTTONS */
+        #start-exam-btn { background: #cccccc; color: #666666; padding: 15px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: not-allowed; width: 100%; transition: all 0.3s ease; }
+        #start-exam-btn.active-btn { background: #4caf50 !important; color: white !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+        /* --- HEADERS --- */
+        #primary-header { background: #ffffff; height: 60px; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 50; flex-shrink: 0; position: relative; }
+        #timer-container { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; pointer-events: none; }
+        #timer-display { background: #fff0f0; color: #d32f2f; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.95rem; border: 1px solid #ffe0e0; display: flex; align-items: center; gap: 5px; }
+        #submit-btn { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; padding: 8px 15px; box-shadow: 0 3px 10px rgba(56, 239, 125, 0.4); border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; z-index: 10; }
+        .btn { border: none; padding: 8px; cursor: pointer; border-radius: 6px; background: #f0f0f0; transition: 0.2s; }
+        
+        #secondary-header { background: #eef2f6; height: 40px; padding: 0 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dcdcdc; z-index: 40; flex-shrink: 0; font-size: 0.85rem; }
+
+        #main-container { flex: 1; display: flex; position: relative; overflow: hidden; padding-bottom: 70px; }
+
+        /* --- LEFT PANEL CONTAINER --- */
+        #left-panel { width: 280px; background: white; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; padding: 15px; overflow-y: auto; transition: transform 0.3s ease; z-index: 100; height: 100%; padding-bottom: 50px; }
+        @media (max-width: 900px) { #left-panel { position: absolute; top: 0; left: 0; height: 100%; width: 85%; max-width: 300px; transform: translateX(-100%); box-shadow: 5px 0 15px rgba(0,0,0,0.2); padding-bottom: 140px !important; } #left-panel.active { transform: translateX(0); } }
+
+        /* --- QUESTION AREA --- */
+        #question-area { flex: 1; padding: 15px; overflow-y: auto; background-color: #f8f9fa; }
+        #question-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); max-width: 800px; margin: 0 auto; }
+        .option { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background 0.1s; }
+        .option.selected { background: #fff3e0; border-color: #ff9800; }
+        .option-badge { min-width: 24px; height: 24px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #555; flex-shrink: 0; }
+        .option.selected .option-badge { background: #ff9800; color: white; }
+
+        footer { position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: white; border-top: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .nav-btn { width: 40px; height: 40px; border-radius: 50%; background: #ffc107; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; flex-shrink: 0; }
+        .nav-btn:disabled { background: #eee; color: #aaa; }
+        .footer-center { display: flex; gap: 8px; flex: 1; justify-content: center; }
+        .action-btn { flex: 1; padding: 10px; border: none; border-radius: 5px; color: white; font-weight: bold; cursor: pointer; max-width: 140px; font-size: 0.85rem; white-space: nowrap; }
+
+        /* --- BASIC OVERLAYS --- */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; backdrop-filter: blur(2px); }
+        .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; width: 90%; max-width: 350px; border-radius: 15px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 3000; display: none; }
+
+        /* --- PRINT SETTINGS --- */
+        #print-area { display: none; } 
+        @media print {
+            body, html, #main-container, #question-area { height: auto !important; overflow: visible !important; background-color: white !important; }
+            #primary-header, #secondary-header, #main-container, #footer, #result-modal, #modal-success, #panel-overlay, #instruction-overlay, #confirm-modal, #final-success-modal, #level-toast, #global-loader { display: none !important; }
+            body { background-color: white; font-family: Arial, sans-serif; -webkit-print-color-adjust: exact; }
+            #print-area { display: block !important; position: absolute; top: 0; left: 0; width: 100%; padding: 20px; z-index: 9999; }
+            .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80px; color: rgba(70, 130, 180, 0.50); z-index: -1; white-space: nowrap; font-weight: bold; text-transform: uppercase; font-family: sans-serif; }
+            .print-header { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 10px; }
+            .print-summary-box { border: 1px solid #333; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-around; background: #f9f9f9; font-weight: bold; }
+            .print-question-box { border: 1px solid #ccc; margin-bottom: 15px; page-break-inside: avoid; padding: 15px; }
+            .print-q-header { display: flex; justify-content: space-between; background: #eee; padding: 8px; font-weight: bold; border-bottom: 1px solid #ddd; }
+            .print-status { font-weight: bold; text-transform: uppercase; }
+            .status-correct { color: green; } .status-wrong { color: red; } .status-skipped { color: orange; }
+            .print-q-text { margin: 15px 0; font-size: 15px; }
+            .print-options { margin-left: 10px; font-size: 14px; }
+            .print-opt-row { padding: 5px; margin-bottom: 4px; border-radius: 4px; display: flex; align-items: center; gap: 10px; }
+            .print-correct-ans { background-color: #d4edda !important; border: 1px solid #c3e6cb; }
+            .print-user-wrong { background-color: #f8d7da !important; border: 1px solid #f5c6cb; text-decoration: line-through; opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="global-loader">
+        <div class="spinner"></div>
+        <h3 style="color:#333;">Fetching CSAT Data...</h3>
+        <p style="color:#666; font-size:14px;">Please wait</p>
+    </div>
+
+    <div id="level-toast"></div>
+
+    <div id="instruction-overlay">
+        <div class="ins-card">
+            <img src="512.png" class="ins-logo" alt="App Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+            <h2 id="ins-main-title" style="margin:0 0 10px 0; color:#333; font-size:1.5rem; text-align:center;">CSAT Mock Test</h2>
+            
+            <div class="ins-content" id="instructions-box">
+                <h2>महत्वपूर्ण निर्देश (Important Instructions)</h2>
+                <ul>
+                    <li style="color: #d32f2f; font-weight: bold; background:#ffebee; padding:5px; border-radius:5px;">
+                        ⚠️ बटन को सक्षम (Enable) करने के लिए निर्देशों को अंत तक स्क्रॉल करें।
+                    </li>
+                    <li style="color: #ff9800; font-weight: bold; margin-top:10px;">📌 अनुभागीय नियम (Sectional Rules):</li>
+                    <li>1. यह टेस्ट <b>3 लेवल्स (Levels)</b> में विभाजित है (Level 1, Level 2, Level 3)।</li>
+                    <li>2. प्रत्येक लेवल में <b><span id="q-per-level-count"></span> प्रश्न</b> हैं।</li>
+                    <li>3. शुरू में केवल <b>Level 1</b> खुला रहेगा। Level 2 और 3 लॉक रहेंगे।</li>
+                    <li>4. जैसे ही आप Level 1 पूरा करेंगे, <b>Level 2</b> अपने आप अनलॉक हो जाएगा।</li>
+                    
+                    <li style="margin-top:10px;">6. इस परीक्षा में कुल <b><span id="total-q"></span> प्रश्न</b> हैं।</li>
+                    <li>7. प्रत्येक सही उत्तर के लिए <b>+2.5 अंक</b> दिए जाएंगे।</li>
+                    <li>8. प्रत्येक गलत उत्तर के लिए <b>-0.83 अंक</b> काटे जाएंगे।</li>
+                    <li>9. परीक्षा की कुल अवधि <b><span id="ins-time"></span> मिनट</b> है।</li>
+                    <li>10. आप ऊपर दिए गए 'EN/HI' बटन से भाषा बदल सकते हैं।</li>
+                    <li>11. समय समाप्त होने पर परीक्षा अपने आप सबमिट हो जाएगी।</li>
+                </ul>
+                <div style="height: 50px;"></div> 
+            </div>
+            <button id="start-exam-btn" disabled>Read Full Instructions to Start</button>
+        </div>
+    </div>
+
+    <div id="panel-overlay" class="overlay" style="z-index: 90;"></div>
+
+    <header id="primary-header">
+        <div class="header-left">
+            <button id="panel-toggle-btn" class="btn"><i class="fas fa-bars"></i></button>
+        </div>
+        <div id="timer-container">
+            <div id="timer-display"><i class="far fa-clock"></i> <span id="time">00:00</span></div>
+        </div>
+        <div class="header-right">
+            <button id="submit-btn">SUBMIT</button>
+        </div>
+    </header>
+
+    <header id="secondary-header">
+        <span id="sec-header-title" style="font-weight:bold; color:#555;">Loading...</span>
+        <button id="lang-btn" class="btn" style="background:#ff9800; color:white; font-size:0.75rem;">EN / HI</button>
+    </header>
+
+    <div id="main-container">
+        <aside id="left-panel">
+            <div style="background: linear-gradient(135deg, #ff9800, #f44336); color:white; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;">
+                <img id="student-photo" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:60px; height:60px; border-radius:50%; border:3px solid white; object-fit:cover; background:white;">
+                <div id="student-name" style="font-weight:bold; margin-top:5px; font-size:0.9rem;">Guest Student</div>
+            </div>
+            <div style="font-size:0.85rem; font-weight:bold; color:#555; margin-bottom:10px;">Question Palette</div>
+            <div id="question-grid"></div>
+        </aside>
+
+        <main id="question-area">
+            <div id="question-card">
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
+                    <span id="q-num-display" style="font-weight:bold; color:#ff9800;">Question 1</span>
+                    <span style="color:green; font-weight:bold; background:#e8f5e9; padding:2px 8px; border-radius:10px; font-size:0.8rem;">+2.5/ -0.83</span>
+                </div>
+                <div id="q-text" style="font-size:1rem; line-height:1.6; margin-bottom:20px; color:#333;">Loading...</div>
+                <div id="options-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <button id="prev-btn" class="nav-btn"><i class="fas fa-arrow-left"></i></button>
+        <div class="footer-center">
+            <button id="mark-review-btn" class="action-btn" style="background:#ff9800;">Mark Review</button>
+            <button id="clear-btn" class="action-btn" style="background:#f44336;">Clear</button>
+        </div>
+        <button id="next-btn" class="nav-btn"><i class="fas fa-arrow-right"></i></button>
+    </footer>
+
+    <div id="confirm-modal" class="overlay">
+        <div class="modal" style="display:block;">
+            <div style="font-size:2.5rem; color:#ff9800; margin-bottom:10px;"><i class="fas fa-question-circle"></i></div>
+            <h3>Submit Test?</h3>
+            <p>Are you sure you want to finish?</p>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button id="modal-no" class="action-btn" style="background:#eee; color:#333;">No</button>
+                <button id="modal-yes" class="action-btn" style="background:#4caf50;">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-modal" class="overlay">
+        <div class="modal" style="display:block; max-width:400px;">
+            <div style="font-size:2.5rem; color:#4caf50; margin-bottom:10px;"><i class="fas fa-clipboard-check"></i></div>
+            <h3>Test Summary</h3>
+            <div id="result-content" style="text-align:left; margin:15px 0; font-size:0.9rem;"></div>
+            <button id="download-pdf-btn" class="action-btn" style="width:100%; background:#d32f2f; margin-bottom:10px;">Download PDF</button>
+            <button id="close-result-btn" class="action-btn" style="width:100%; background:#eee; color:#333;">Close & Finish</button>
+        </div>
+    </div>
+
+    <div id="final-success-modal">
+        <div class="success-card">
+            <div class="success-icon-container"><i class="fas fa-check success-icon"></i></div>
+            <h2 style="color:#333; margin:0 0 10px 0;">Great Job!</h2>
+            <p style="color:#666; font-size:0.95rem; margin-bottom:25px;">You have successfully submitted the test.</p>
+            <button id="go-home-btn" class="action-btn" style="width:100%; background:#4caf50; font-size:1rem; padding:12px;">Go to Home</button>
+        </div>
+    </div>
+
+    <div id="print-area"></div>
+    <script>
+        // ====================================================================
+        //  🔥 FIREBASE CONFIGURATION (For standalone CSAT test page)
+        // ====================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWICL91LIpowI5UOnoQVM0oKCIu9CjJyI",
+            authDomain: "pretestt-3f972.firebaseapp.com",
+            databaseURL: "https://pretestt-3f972-default-rtdb.firebaseio.com",
+            projectId: "pretestt-3f972",
+            storageBucket: "pretestt-3f972.firebasestorage.app",
+            messagingSenderId: "399486610102",
+            appId: "1:399486610102:web:745aad2ce6072fdc1bd417"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // --- ⚡ INJECT CRITICAL CSS ---
+        function injectDynamicStyles() {
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            style.innerHTML = `
+                #level-toast { position: fixed !important; top: 15% !important; left: 50% !important; transform: translate(-50%, -50%) !important; background: #333 !important; color: #fff !important; padding: 12px 30px !important; border-radius: 50px !important; z-index: 10000 !important; font-weight: bold !important; box-shadow: 0 5px 20px rgba(0,0,0,0.4) !important; display: none; text-align: center !important; min-width: 280px !important; animation: slideDownFade 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; font-family: 'Roboto', sans-serif !important; font-size: 1rem !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+                #question-grid { display: grid !important; grid-template-columns: repeat(5, 1fr) !important; gap: 10px !important; padding: 5px !important; }
+                .grid-section-header { grid-column: 1 / -1 !important; background: #fff3e0 !important; color: #e65100 !important; font-weight: bold !important; text-align: left !important; padding: 8px 12px !important; margin: 20px 0 10px 0 !important; border-radius: 6px !important; font-size: 0.9rem !important; border-left: 4px solid #e65100 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; display: flex !important; align-items: center !important; gap: 8px !important; }
+                .grid-item { aspect-ratio: 1 !important; border: 1px solid #ccc !important; border-radius: 8px !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; font-weight: bold !important; background: #fff !important; font-size: 0.9rem !important; box-shadow: 0 2px 5px rgba(0,0,0,0.05) !important; transition: transform 0.1s !important; }
+                .grid-item:active { transform: scale(0.95) !important; }
+                .grid-item.current { border: 2px solid #333 !important; transform: scale(1.05) !important; z-index: 2 !important; }
+                .grid-item.answered { background: #4caf50 !important; color: white !important; border-color: #4caf50 !important; }
+                .grid-item.not-answered { background: #f44336 !important; color: white !important; border-color: #f44336 !important; }
+                .grid-item.review { background: #ff9800 !important; color: white !important; border-color: #ff9800 !important; }
+                .grid-item.ans-review { background: #ff5722 !important; color: white !important; border-color: #ff5722 !important; }
+                .grid-item.locked { background: #f0f0f0 !important; color: #ccc !important; cursor: not-allowed !important; }
+                #final-success-modal { position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: rgba(0,0,0,0.85) !important; z-index: 99999 !important; display: none; align-items: center !important; justify-content: center !important; backdrop-filter: blur(5px); flex-direction: column !important; }
+                #final-success-modal.active-modal { display: flex !important; }
+                .success-card { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 350px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid #fff; }
+                .success-icon-container { width: 80px; height: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 10px 20px rgba(76, 175, 80, 0.2); }
+                .success-icon { font-size: 40px; color: #4caf50; animation: checkPop 0.6s ease; }
+                @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+                @keyframes checkPop { 0% { transform: scale(0); } 80% { transform: scale(1.2); } 100% { transform: scale(1); } }
+                @keyframes slideDownFade { 0% { top: -10%; opacity: 0; } 100% { top: 15%; opacity: 1; } }
+                @media print { #final-success-modal, .success-card, .overlay, #level-toast, .grid-section-header, #left-panel { display: none !important; opacity: 0 !important; visibility: hidden !important; z-index: -1 !important; } }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // --- 🌟 GLOBAL VARIABLES ---
+        let questions = []; 
+        let totalQuestions = 0;
+        let Q_PER_LEVEL = 10; 
+        let unlockedLevel = 1;
+        let currentIndex = 0;
+        let currentLang = 'en';
+        let timeLeft = 0; // Will be set dynamically
+        let timerInterval;
+        let userState = [];
+        let testTitleDynamic = "CSAT Mock Test"; // Default
+
+        document.addEventListener('DOMContentLoaded', () => {
+            injectDynamicStyles(); 
+            syncProfile(); 
+            fetchTestDataFromFirebase(); // 🌟 URL से ID पढ़कर डेटा लाना
+        });
+
+        // ====================================================================
+        //  🌟 DYNAMIC FETCH LOGIC
+        // ====================================================================
+        function fetchTestDataFromFirebase() {
+            // 1. URL से ID निकालें (जैसे: master-csat.html?id=-NoXYz123...)
+            const urlParams = new URLSearchParams(window.location.search);
+            const testId = urlParams.get('id');
+
+            if (!testId) {
+                alert("Error: Test ID is missing!");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // 2. Firebase से उस ID का डेटा मंगाएं ('all_tests' नोड से)
+            db.ref('all_tests/' + testId).once('value').then(snap => {
+                const data = snap.val();
+                
+                if (!data || !data.questions) {
+                    alert("Error: Test data not found or deleted!");
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                // 3. डेटा को वेरिएबल्स में सेट करें
+                questions = data.questions;
+                totalQuestions = questions.length;
+                timeLeft = parseInt(data.timing) * 60; // Minutes to Seconds
+                testTitleDynamic = data.title;
+                
+                // Levels तय करें (बराबर 3 हिस्सों में)
+                Q_PER_LEVEL = Math.ceil(totalQuestions / 3);
+                userState = questions.map(() => ({ status: 0, selectedOption: -1 }));
+
+                // 4. HTML में टाइटल और नंबर अपडेट करें
+                document.getElementById('page-title').innerText = testTitleDynamic;
+                document.getElementById('sec-header-title').innerText = testTitleDynamic;
+                document.getElementById('ins-main-title').innerText = testTitleDynamic;
+                document.getElementById('ins-time').innerText = data.timing;
+                document.getElementById('total-q').innerText = totalQuestions;
+                document.getElementById('q-per-level-count').innerText = Q_PER_LEVEL;
+
+                // 5. लोडिंग स्क्रीन हटाएं और इंस्ट्रक्शन दिखाएं
+                document.getElementById('global-loader').style.display = 'none';
+                document.getElementById('instruction-overlay').style.display = 'flex';
+
+                // 6. UI रेंडर करें
+                renderGrid(); 
+                renderQuestion(); 
+                setupListeners();
+                setupScrollLogic(); 
+
+            }).catch(err => {
+                console.error(err);
+                alert("Failed to load test. Check internet connection.");
+            });
+        }
+
+        // --- SCROLL LOGIC FOR INSTRUCTIONS ---
+        function setupScrollLogic() {
+            const box = document.getElementById('instructions-box');
+            const btn = document.getElementById('start-exam-btn');
+
+            if (box.scrollHeight <= box.clientHeight + 10) { enableButton(btn); return; }
+            box.addEventListener('scroll', () => {
+                if (Math.ceil(box.scrollTop + box.clientHeight) >= box.scrollHeight - 20) { enableButton(btn); }
+            });
+        }
+
+        function enableButton(btn) {
+            if(btn.disabled) { btn.disabled = false; btn.textContent = "START TEST / शुरू करें"; btn.classList.add('active-btn'); }
+        }
+
+        function syncProfile() {
+            const stored = localStorage.getItem('userProfile');
+            if(stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    if(data.name) document.getElementById('student-name').textContent = data.name;
+                    if(data.photo) document.getElementById('student-photo').src = data.photo;
+                } catch(e){}
+            }
+        }
+
+        // --- GRID RENDER ---
+        function renderGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < totalQuestions; i++) {
+                if (i % Q_PER_LEVEL === 0) {
+                    const levelNum = Math.floor(i / Q_PER_LEVEL) + 1;
+                    const header = document.createElement('div');
+                    header.className = 'grid-section-header';
+                    header.innerHTML = `<i class="fas fa-layer-group"></i> Level ${levelNum}`;
+                    grid.appendChild(header);
+                }
+
+                const btn = document.createElement('div');
+                const levelOfThisQ = Math.floor(i / Q_PER_LEVEL) + 1;
+                
+                let classes = 'grid-item';
+                if (i === currentIndex) classes += ' current';
+                
+                const s = userState[i] ? userState[i].status : 0;
+                if(s===2) classes += ' answered';
+                if(s===1) classes += ' not-answered';
+                if(s===3) classes += ' review';
+                if(s===4) classes += ' ans-review';
+
+                if (levelOfThisQ > unlockedLevel) {
+                    classes += ' locked';
+                    btn.innerHTML = `<i class="fas fa-lock" style="font-size:0.7rem;"></i>`;
+                } else {
+                    btn.textContent = i + 1;
+                    btn.onclick = () => {
+                        currentIndex = i; renderQuestion();
+                        if(window.innerWidth <= 900) togglePanel(false);
+                    };
+                }
+                btn.className = classes;
+                btn.id = `grid-btn-${i}`;
+                grid.appendChild(btn);
+            }
+        }
+
+        function renderQuestion() {
+            if (questions.length === 0) return;
+            const q = questions[currentIndex];
+            const txt = currentLang === 'en' ? q.text_en : q.text_hi;
+            const opt = currentLang === 'en' ? q.options_en : q.options_hi;
+            const currentLevel = Math.floor(currentIndex / Q_PER_LEVEL) + 1;
+
+            document.getElementById('q-num-display').textContent = `Q.${currentIndex + 1} (Level ${currentLevel})`;
+            document.getElementById('q-text').innerHTML = txt;
+
+            const cont = document.getElementById('options-container');
+            cont.innerHTML = '';
+            (opt || []).forEach((o, i) => {
+                const div = document.createElement('div');
+                div.className = `option ${userState[currentIndex].selectedOption === i ? 'selected' : ''}`;
+                div.innerHTML = `<div class="option-badge">${String.fromCharCode(65+i)}</div><div>${o}</div>`;
+                div.onclick = () => selectOption(i);
+                cont.appendChild(div);
+            });
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = currentIndex === totalQuestions - 1;
+            renderGrid();
+        }
+
+        function selectOption(i) {
+            userState[currentIndex].selectedOption = i;
+            userState[currentIndex].status = userState[currentIndex].status === 3 ? 4 : 2;
+            renderQuestion(); 
+        }
+
+        function togglePanel(show) {
+            const p = document.getElementById('left-panel');
+            const o = document.getElementById('panel-overlay');
+            if(show) { p.classList.add('active'); o.style.display='block'; }
+            else { p.classList.remove('active'); o.style.display='none'; }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('level-toast');
+            t.innerHTML = `<i class="fas fa-trophy" style="color:#ffd700; margin-right:8px;"></i> ${msg}`;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 4000);
+        }
+
+        function showSuccessExit() {
+            document.getElementById('result-modal').style.display = 'none';
+            document.getElementById('final-success-modal').classList.add('active-modal');
+        }
+
+        function setupListeners() {
+            document.getElementById('start-exam-btn').onclick = () => { document.getElementById('instruction-overlay').style.display = 'none'; startTimer(); };
+            document.getElementById('next-btn').onclick = () => { 
+                if(userState[currentIndex].status===0 && userState[currentIndex].selectedOption===-1) userState[currentIndex].status=1; 
+                if ((currentIndex + 1) % Q_PER_LEVEL === 0) {
+                    const currentLvl = (currentIndex + 1) / Q_PER_LEVEL;
+                    if (currentLvl === unlockedLevel && unlockedLevel < 3) {
+                        unlockedLevel++; 
+                        showToast(`Level ${currentLvl} Completed.<br>Level ${unlockedLevel} Started!`);
+                    }
+                }
+                if(currentIndex < questions.length-1) { currentIndex++; renderQuestion(); }
+            };
+            document.getElementById('prev-btn').onclick = () => { if(currentIndex > 0) { currentIndex--; renderQuestion(); } };
+            document.getElementById('mark-review-btn').onclick = () => { userState[currentIndex].status = userState[currentIndex].selectedOption !== -1 ? 4 : 3; if(currentIndex < questions.length-1) { currentIndex++; renderQuestion(); } };
+            document.getElementById('clear-btn').onclick = () => { userState[currentIndex].selectedOption = -1; userState[currentIndex].status = 1; renderQuestion(); };
+            document.getElementById('lang-btn').onclick = () => { currentLang = currentLang === 'en' ? 'hi' : 'en'; renderQuestion(); };
+            
+            document.getElementById('panel-toggle-btn').onclick = () => togglePanel(true);
+            document.getElementById('panel-overlay').onclick = () => togglePanel(false);
+            document.getElementById('submit-btn').onclick = () => document.getElementById('confirm-modal').style.display='block';
+            document.getElementById('modal-no').onclick = () => document.getElementById('confirm-modal').style.display='none';
+            document.getElementById('modal-yes').onclick = finalizeTest;
+            document.getElementById('close-result-btn').onclick = showSuccessExit;
+            document.getElementById('go-home-btn').onclick = () => { window.location.href = "index.html"; }; // Redirect to main app
+            document.getElementById('download-pdf-btn').onclick = generatePdfReport;
+        }
+
+        function startTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if(timeLeft<=0) { clearInterval(timerInterval); finalizeTest(); return; }
+                timeLeft--;
+                const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+                const s = (timeLeft%60).toString().padStart(2,'0');
+                document.getElementById('time').textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        // ====================================================================
+        //  🌟 CSAT (GS-2) SCORING LOGIC (+2.5, -0.83)
+        // ====================================================================
+        function calculateScore() {
+            let cor=0, wro=0, att=0, scr=0;
+            userState.forEach((u,i)=>{
+                if(u.selectedOption!==-1) {
+                    att++;
+                    if(u.selectedOption === parseInt(questions[i].correct_ans)){ 
+                        cor++; 
+                        scr += 2.5;  // 🌟 CSAT Positive Marking
+                    } else { 
+                        wro++; 
+                        scr -= 0.83; // 🌟 CSAT Negative Marking
+                    }
+                }
+            });
+            return { attempted: att, correct: cor, incorrect: wro, netScore: scr.toFixed(2) };
+        }
+
+        function finalizeTest() {
+            document.getElementById('confirm-modal').style.display='none';
+            clearInterval(timerInterval);
+            const scoreData = calculateScore();
+            document.getElementById('result-content').innerHTML = `
+                <div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px dashed #ccc;"><span>Total</span><b>${totalQuestions}</b></div>
+                <div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px dashed #ccc;"><span>Attempted</span><b>${scoreData.attempted}</b></div>
+                <div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px dashed #ccc; color:green;"><span>Correct</span><b>${scoreData.correct}</b></div>
+                <div style="display:flex; justify-content:space-between; padding:5px; border-bottom:1px dashed #ccc; color:red;"><span>Wrong</span><b>${scoreData.incorrect}</b></div>
+                <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:1.2rem; color:#ff9800;"><span>Score</span><b>${scoreData.netScore}</b></div>
+            `;
+            document.getElementById('result-modal').style.display='block';
+        }
+
+        // 🌟 DYNAMIC PDF GENERATION
+        function generatePdfReport() {
+            const btn = document.getElementById('download-pdf-btn');
+            const originalText = btn.innerHTML; 
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true; btn.style.opacity = "0.7";
+
+            setTimeout(() => {
+                const s = calculateScore();
+                const printContainer = document.getElementById('print-area');
+                const studentName = document.getElementById('student-name').innerText || "Guest User";
+                const dateTime = new Date().toLocaleString(); 
+
+                let htmlContent = `
+                    <div class="watermark">PreTestt.com</div> 
+                    <div class="print-header">
+                        <h1 style="color:#ff9800;">${testTitleDynamic}</h1>
+                        <p>Candidate: ${studentName} | Time: ${dateTime}</p> </div>
+
+                    <div class="print-summary-box">
+                        <div>Score: ${s.netScore}</div>
+                        <div>Correct: ${s.correct}</div>
+                        <div>Incorrect: ${s.incorrect}</div>
+                    </div>`;
+
+                questions.forEach((q, index) => {
+                    const state = userState[index]; 
+                    
+                    let rawAns = q.correct_ans;
+                    let correctOptIndex = -1; 
+                    if (typeof rawAns === 'number') correctOptIndex = rawAns;
+                    else if (typeof rawAns === 'string') {
+                        rawAns = rawAns.trim().toLowerCase();
+                        if (rawAns === 'a') correctOptIndex = 0; else if (rawAns === 'b') correctOptIndex = 1;
+                        else if (rawAns === 'c') correctOptIndex = 2; else if (rawAns === 'd') correctOptIndex = 3;
+                        else if (!isNaN(parseInt(rawAns))) correctOptIndex = parseInt(rawAns);
+                    }
+
+                    const userOptIndex = state.selectedOption;
+                    let statusText = "NOT ATTEMPTED", statusClass = "status-skipped";
+                    if (userOptIndex !== -1) {
+                        statusText = userOptIndex === correctOptIndex ? "CORRECT" : "WRONG";
+                        statusClass = userOptIndex === correctOptIndex ? "status-correct" : "status-wrong";
+                    }
+
+                    let optionsHtml = '';
+                    const optionsArr = currentLang === 'en' ? q.options_en : q.options_hi;
+                    if(optionsArr) {
+                        optionsArr.forEach((opt, i) => {
+                            let rowStyle = '', icon = '<i class="far fa-circle"></i>'; 
+                            if (i === correctOptIndex) { rowStyle = 'print-correct-ans'; icon = '✔'; }
+                            if (i === userOptIndex && i !== correctOptIndex) { rowStyle = 'print-user-wrong'; icon = '✖'; }
+                            if (i === userOptIndex && i === correctOptIndex) { icon = '✔ (Your Ans)'; }
+                            optionsHtml += `<div class="print-opt-row ${rowStyle}"><span>${icon}</span> <strong>${String.fromCharCode(65 + i)}.</strong> <div>${opt}</div></div>`;
+                        });
+                    }
+
+                    htmlContent += `
+                        <div class="print-question-box">
+                            <div class="print-q-header"><span>Q.${index+1}</span><span class="print-status ${statusClass}">${statusText}</span></div>
+                            <div class="print-q-text">${currentLang === 'en' ? q.text_en : q.text_hi}</div>
+                            <div class="print-options">${optionsHtml}</div>
+                        </div>`;
+                });
+
+                printContainer.innerHTML = htmlContent;
+
+                setTimeout(() => { 
+                    btn.innerHTML = originalText; btn.disabled = false; btn.style.opacity = "1";
+                    window.print();
+                }, 50); 
+
+                window.onafterprint = function() { showSuccessExit(); window.onafterprint = null; };
+            }, 10); 
+        }
+    </script>
+</body>
+</html>

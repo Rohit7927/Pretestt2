@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" id="theme-color-meta" content="#7dd3fc">
+<link rel="icon" type="image/png" href="512.png" sizes="512x512">
+    <link rel="apple-touch-icon" href="logo/192.png">
+    
+    <title> 📖✒️PreTestt✒️📖Best Test Series for IAS, IPS & Civil Services</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css?v=4">
+
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+
+</head>
+<body>
+     
+    <div id="toast">
+        <img src="logo/512.png" class="toast-logo" alt="App Logo">
+        <span id="toast-text">No Internet Connection!</span>
+    </div>
+
+    <div id="exit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <i class="fas fa-sign-out-alt" style="font-size: 40px; color: var(--danger); margin-bottom: 15px;"></i>
+            <h3>Exit App?</h3>
+            <p style="opacity:0.8; font-size: 14px;">Are you sure you want to close?</p>
+            <div class="modal-btns">
+                <button class="btn-no" onclick="closeModal()">No</button>
+                <button class="btn-yes" onclick="performExit()">Yes</button>
+            </div>
+        </div>
+    </div>
+<div id="payment-modal" class="modal-overlay" style="z-index: 9999;">
+    <div class="sub-container">
+        <div class="sub-header">
+            <i class="fas fa-arrow-left" onclick="closePaymentModal()" style="font-size: 20px; cursor: pointer;"></i>
+            <span style="font-size: 18px; font-weight: bold;">Premium Plan</span>
+            <i class="fas fa-crown" style="color: #FFD700;"></i>
+        </div>
+
+        <div class="sub-body">
+            <div style="text-align:center; margin: 20px 0;">
+                <img src="logo/512.png" style="width: 80px; height: 80px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <h2 style="margin: 10px 0; color: #1e293b;">PreTestt Premium</h2>
+                <p style="color:red; font-weight:bold; font-size:13px; background: #fee2e2; display: inline-block; padding: 4px 10px; border-radius: 20px;">Unlock All Features</p>
+            </div>
+
+            <div class="feature-list">
+                <div class="f-item"><i class="fas fa-check-circle" style="color:#16a34a;"></i> <span>Unlimited Mock Tests</span></div>
+                <div class="f-item"><i class="fas fa-check-circle" style="color:#16a34a;"></i> <span>PYQ Papers (Yearly)</span></div>
+                <div class="f-item"><i class="fas fa-check-circle" style="color:#16a34a;"></i> <span>100% Ad-Free Experience</span></div>
+            </div>
+
+            <h4 style="margin: 20px 0 10px; color: #64748b;">Select Validity</h4>
+
+<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    
+    <div id="plan-half" class="plan-card" onclick="selectPlan('half')" style="flex: 1; cursor: pointer; border: 2px solid #e2e8f0; padding: 10px; border-radius: 10px; text-align: center;">
+        <h4 style="color: #64748b; margin-bottom: 5px;">6 Months</h4>
+        <div style="font-size: 20px; font-weight: 800; color: #1e293b;">₹599</div>
+    </div>
+
+    <div id="plan-yearly" class="plan-card selected" onclick="selectPlan('yearly')" style="flex: 1; cursor: pointer; border: 2px solid #2563eb; background: #eff6ff; padding: 10px; border-radius: 10px; text-align: center; position: relative;">
+        <div class="tick-mark" style="position: absolute; top: -10px; right: -5px; background: #2563eb; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+            <i class="fas fa-check"></i>
+        </div>
+        <h4 style="color: #2563eb; margin-bottom: 5px;">1 Year</h4>
+        <div style="font-size: 20px; font-weight: 800; color: #1e293b;">₹999</div>
+        <span style="font-size: 10px; background: #dbeafe; color: #2563eb; padding: 2px 6px; border-radius: 4px;">BEST VALUE</span>
+    </div>
+
+</div>
+
+<div style="text-align: center; margin-bottom: 15px;">
+    <span style="color: #64748b; font-size: 14px;">Total Payable: </span>
+    <span id="final-price" style="font-size: 28px; font-weight: 800; color: #1e293b;">₹999</span>
+</div>
+
+
+            <div class="coupon-box" style="margin-top: 20px; display: flex; gap: 8px;">
+                <input type="text" id="coupon-input" placeholder="Coupon Code" style="flex:1; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 8px; text-transform: uppercase; font-weight: bold; text-align: center;">
+                <button onclick="applyCoupon()" style="background: #0f172a; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold;">APPLY</button>
+            </div>
+            <p id="coupon-msg" style="text-align:center; font-size:12px; margin-top:8px; font-weight: 600;"></p>
+
+            <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin: 20px 0; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <input type="checkbox" id="terms-check" onchange="togglePayBtn()" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="terms-check" style="font-size:13px; color:#334155; cursor: pointer;">
+                    I agree to 
+                    <span onclick="openPayTerms()" style="color: #2563eb; font-weight: bold; text-decoration: underline; cursor: pointer;">Terms & Refund Policy</span>
+                </label>
+            </div>
+        </div>
+
+        <button id="main-pay-btn" class="buy-now-btn" onclick="processRazorpayPayment()" disabled style="background: #94a3b8; cursor: not-allowed;">
+            <i class="fas fa-lock"></i> &nbsp; Pay Now
+        </button>
+    </div>
+</div>
+
+<div id="pay-terms-modal" class="modal-overlay" style="z-index: 10000; background: rgba(0,0,0,0.6);">
+    <div class="sub-container">
+        <div class="sub-header" style="background: #fff; color: #333; border-bottom: 1px solid #eee;">
+            <button onclick="closePayTerms()" style="background:none; border:none; font-size: 20px; cursor: pointer;"><i class="fas fa-arrow-left"></i></button>
+            <span style="font-size: 16px; font-weight: bold;">Refund Policy</span>
+            <div style="width: 20px;"></div>
+        </div>
+
+        <div class="sub-body" style="padding: 20px; text-align: left; color: #334155; line-height: 1.6; max-height: 70vh; overflow-y: auto; font-family: 'Segoe UI', sans-serif;">
+            
+            <div style="text-align:center; margin-bottom:20px;">
+                <i class="fas fa-hand-holding-usd" style="font-size:40px; color:#db2777; margin-bottom:10px;"></i>
+                <h3 style="margin:0; color:#1e293b; font-size: 18px;">Cancellation & Refunds</h3>
+                <p style="font-size:12px; color:#64748b; margin-top: 5px;">Transparent & Fair Billing</p>
+            </div>
+
+            <div style="background: #fff1f2; padding: 15px; border-radius: 8px; border: 1px solid #fda4af; margin-bottom: 20px;">
+                <p style="margin:0; color: #be123c; font-size: 13px;"><strong>⚠️ Important Note:</strong> PreTestt offers "Digital Goods" (Mock Tests & PDFs) which are consumed immediately upon access. Therefore, refunds are generally restricted.</p>
+            </div>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">1. General Refund Rules</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">All purchases made on PreTestt are <strong>Final and Non-Refundable</strong> except under the specific circumstances mentioned below. Once a subscription is active and content has been viewed, we cannot offer a refund.</p>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">2. Valid Scenarios for Refund</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">We will happily issue a 100% refund in the following cases:</p>
+            <ul style="padding-left: 20px; margin-bottom: 15px; font-size: 13px;">
+                <li><strong>Double Deduction:</strong> If your account was charged twice for a single transaction due to a server error.</li>
+                <li><strong>Transaction Failure:</strong> If money was deducted from your bank but the Premium Plan was not activated within 24 hours.</li>
+                <li><strong>Accidental Purchase (Strict Condition):</strong> If a refund request is raised within <strong>2 hours</strong> of purchase AND the user has <strong>not opened/attempted any mock test or PDF</strong>. Our system logs will be verified for this.</li>
+            </ul>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">3. Non-Refundable Scenarios</h4>
+            <ul style="padding-left: 20px; margin-bottom: 15px; font-size: 13px;">
+                <li>"I don't like the questions" (Please try our Free Tests before buying).</li>
+                <li>"I changed my mind" or "I don't have time to study".</li>
+                <li>Issues related to your slow internet connection or device lag.</li>
+                <li>Request made after 2 hours of purchase.</li>
+            </ul>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">4. Refund Timeline</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">Approved refunds are initiated within <strong>24-48 hours</strong>. It may take <strong>5-7 bank working days</strong> for the amount to reflect in your original payment source (UPI/Card/Wallet).</p>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">5. Dispute Resolution</h4>
+            <p style="font-size: 13px; margin-bottom: 5px;">To claim a refund, follow these steps strictly:</p>
+            <ol style="padding-left: 20px; margin-bottom: 15px; font-size: 13px;">
+                <li>Email us at <strong style="color: var(--primary);">pretesttapp@gmail.com</strong>.</li>
+                <li>Subject Line: "Refund Request - [Your Mobile Number]".</li>
+                <li>Attach the payment screenshot or <strong>Transaction ID</strong>.</li>
+            </ol>
+
+            <br>
+            <button onclick="closePayTerms()" style="width:100%; padding:15px; background:#1e293b; color:white; border:none; border-radius:10px; font-weight:bold; cursor: pointer;">I Understand & Agree</button>
+        </div>
+    </div>
+</div>
+
+
+    
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+    
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <div class="user-photo-container">
+                <img id="sb-photo" src="https://via.placeholder.com/80" class="user-photo" alt="User">
+            </div>
+            <h3 id="sb-name">Student</h3>
+            <p id="sb-phone" style="font-size:12px; opacity:0.9;">--</p>
+        </div>
+        <div class="menu-list">
+            <a href="#" class="menu-item back-menu-btn" onclick="toggleSidebar()"><i class="fas fa-arrow-left"></i> Back to App</a>
+            <a href="#" class="menu-item" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> Dark Mode</a>
+            
+            <a href="#" class="menu-item" onclick="showPage('contact-page'); toggleSidebar()"><i class="fas fa-headset"></i> Contact Us</a>
+            <a href="#" class="menu-item" onclick="showPage('policy-page'); toggleSidebar()"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+            <a href="#" class="menu-item" onclick="showPage('disclaimer-page'); toggleSidebar()"><i class="fas fa-exclamation-circle"></i> Disclaimer</a>
+            <a href="#" class="menu-item" onclick="showPage('copyright-page'); toggleSidebar()"><i class="fas fa-copyright"></i> Copyright</a>
+            <div style="height: 1px; background: #f1f5f9; margin: 10px 0;"></div>
+            <a href="#" class="menu-item" onclick="confirmExit()"><i class="fas fa-door-open"></i> Exit App</a>
+            <a href="#" class="menu-item" onclick="signOut()" style="color: var(--danger);"><i class="fas fa-power-off"></i> Sign Out</a>
+        </div>
+    </div>
+
+    <div class="top-nav-container" id="main-header">
+        <i class="fas fa-arrow-left nav-back-btn hidden" id="header-back-btn" onclick="goBack()"></i>
+
+        <div id="header-logo-group" class="app-title">
+            <img src="logo/512.png" alt="Logo" style="width: 28px; height: 28px; border-radius: 0%; margin-right: 5px;">
+            <span class="fix-emoji">📖✒️</span>
+            <span class="app-logo-text">PreTestt</span>
+            <span class="fix-emoji">✒️📖</span>
+        </div>
+
+        <button class="lang-btn" onclick="toggleLanguage()">
+            <i class="fas fa-globe"></i> <span id="lang-display">EN</span>
+        </button>
+    </div>
+
+    <div class="greeting-section" id="greeting-section">
+    <div class="greeting-text">Welcome, <span id="greeting-name">Student</span> <span class="waving-hand">👋</span></div>
+    
+    <div class="greeting-sub">Let's start learning today!</div>
+</div>
+
+
+    <div id="app-container">
+        
+        <div id="splash">
+            <img src="logo/512.png" class="splash-logo" alt="Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2997/2997295.png'">
+            
+            <div class="fly-in-container">
+                <span style="--i:1">P</span><span style="--i:2">r</span><span style="--i:3">e</span> 
+                <span style="--i:4">T</span><span style="--i:5">e</span><span style="--i:6">s</span>
+                <span style="--i:7">t</span><span style="--i:8">t</span>           
+            </div>
+
+            <div class="progress-bar-bg">
+                <div id="loader-fill" class="progress-bar-fill"></div>
+        </div>
+  <div id="loading-percent" class="loading-text">0%</div>
+    </div> 
+    <script>
+        if (sessionStorage.getItem("isReturningUser")) {
+            var splash = document.getElementById('splash');
+            if (splash) { 
+                splash.style.display = 'none';
+                splash.style.visibility = 'hidden'; 
+            }
+        }
+    </script>
+        <div id="login-page" class="hidden page-content full-center-page">
+            <div class="login-card">
+                <img src="logo/512.png" alt="Logo" class="login-logo">
+                <h2 style="margin-bottom: 5px;">Welcome Back!</h2>
+                <p style="opacity: 0.7; margin-bottom: 30px; font-size: 14px;">Please sign in to continue your preparation.</p>
+
+                <button class="google-btn" onclick="handleGoogleLogin()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G">
+                    <span>Sign in with Google</span>
+                </button>
+
+   <p style="margin-top: 20px; font-size: 11px; opacity: 0.8; line-height: 1.6;">
+    By continuing, you agree to our 
+    <span onclick="openPolicy('terms-modal')" style="color: #1a73e8; font-weight: bold; cursor: pointer; text-decoration: underline;">Terms</span>, 
+    <span onclick="openPolicy('privacy-modal')" style="color: #1a73e8; font-weight: bold; cursor: pointer; text-decoration: underline;">Privacy</span> 
+    & 
+    <span onclick="openPolicy('refund-modal')" style="color: #1a73e8; font-weight: bold; cursor: pointer; text-decoration: underline;">Refund Policy</span>
+   </p>
+
+            </div>
+        </div>
+
+        <div id="home-page" class="hidden page-content" style="padding-bottom: 0;">
+            <div style="height: 20px; width: 100%;"></div> 
+            <div style="padding: 20px 20px 0;">
+
+    
+                <div class="slider-wrapper"><div class="slider-track" id="slider-track"></div></div>
+            </div>
+
+<div class="topper-slider-section">
+    <div class="topper-track-container">
+        <div class="topper-track" id="topperTrack">
+
+            <div class="topper-slide">
+                <div class="topper-card">
+                    <div class="quote-icon">“</div>
+                    <div class="card-content">
+                        <p class="testimonial-text">
+                            जीवन में कोई कार्य असंभव नहीं होता है बस उसे पूरा करने का ज़ज्बा होना चाहिए। जैसे मैंने अपने सपनों को अपनी मेहनत के जोर पर ना कि किस्मत के भरोसे पूरा किया है। 
+                        </p>
+                        <div class="topper-profile">
+                            <img src="suraj.jpg" alt="Suraj" class="topper-img">
+                            <div class="topper-info">
+                                <h4 class="topper-name">IAS Suraj Tiwari</h4>
+                                <span class="topper-rank"> UPSC CSE 2022 (AIR-917)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote-icon-end">”</div>
+                </div>
+            </div>
+
+            <div class="topper-slide">
+                <div class="topper-card">
+                    <div class="quote-icon">“</div>
+                    <div class="card-content">
+                        <p class="testimonial-text">
+                            जब दुनिया ने कहा “यह असंभव है”, इरा ने कहा “यह चुनौती है”।
+अपने शरीर की सीमाएँ कभी लक्ष्य नहीं बनने दीं — उन्होंने खुद को हर बार साबित किया कि आपकी प्रतिभा और आपका दृढ़ निश्चय ही आपकी पहचान हैं।
+जब उन्हें आरंभ में पोस्टिंग से रोका गया, तो उन्होंने न्याय के लिए लड़कर नयी राह बनाई, न केवल अपने लिए बल्कि उन लाखों उम्मीदवारों के लिए भी जो अपने सपनों के लिए जुझ रहे हैं।
+उनकी कहानी कहती है— “हार तब तक हार नहीं होती जब तक आप संघर्ष करना जारी रखते हैं।” 
+                        </p>
+                        <div class="topper-profile">
+                            <img src="ira.jpg" alt="Ira" class="topper-img">
+                            <div class="topper-info">
+                                <h4 class="topper-name">IAS Ira Singhal</h4>
+                                <span class="topper-rank">UPSC CSE  2014 (AIR-01)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote-icon-end">”</div>
+                </div>
+            </div>
+
+            <div class="topper-slide">
+                <div class="topper-card">
+                    <div class="quote-icon">“</div>
+                    <div class="card-content">
+                        <p class="testimonial-text">
+                            जब अँधेरा हर ओर घना दिखे, प्रांजल ने अपने दिल के उजाले को जलने दिया।
+उनकी कहानी यही साबित करती है कि अलग-अलग क्षमता होने का मतलब सीमित होना नहीं है, बल्कि अपने अनुभव को एक ताकत में बदल देना है।
+खुद को स्वीकार करो, अपने सपनों को मत बदलो — जो तुम हो, वही तुम्हारी सबसे बड़ी शक्ति है।
+किसी भी बाधा को ‘क्षति’ मत समझना — उसे अपने साहस की सीढ़ी बनाओ।
+                        </p>
+                        <div class="topper-profile">
+                            <img src="pranjal.jpg" alt="Pranjal" class="topper-img">
+                            <div class="topper-info">
+                                <h4 class="topper-name">Pranjal Lahensingh Patil</h4>
+                                <span class="topper-rank">UPSC CSE 2017 (AIR-124)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote-icon-end">”</div>
+                </div>
+            </div>
+
+            <div class="topper-slide">
+                <div class="topper-card">
+                    <div class="quote-icon">“</div>
+                    <div class="card-content">
+                        <p class="testimonial-text">
+                            जब दुनिया अँधेरे में रास्ता खो देती है, सत्येंद्र ने अपनी मंज़िल अपने अन्दर ढूंढ ली।
+उनके जीवन ने साबित किया कि दृष्टि की कमी कोई कमजोरी नहीं, बल्कि लक्ष्य की ओर दृष्टिकोण बदलने की शक्ति है।
+जब सब कहते हैं “ये मुश्किल है”, सत्येंद्र कहते हैं “यह मेरा मार्ग है।”
+उनकी कहानी यह सिखाती है कि हार का अर्थ ‘समाप्त’ नहीं, बल्कि ‘और प्रयास’ होता है।
+                        </p>
+                        <div class="topper-profile">
+                            <img src="sat.jpg" alt="Satyendra" class="topper-img">
+                            <div class="topper-info">
+                                <h4 class="topper-name">IAS Satyendra Singh</h4>
+                                <span class="topper-rank">UPSC CSE 2021(AIR-370)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote-icon-end">”</div>
+                </div>
+            </div>
+
+            <div class="topper-slide">
+                <div class="topper-card">
+                    <div class="quote-icon">“</div>
+                    <div class="card-content">
+                        <p class="testimonial-text">
+                            लोग कह सकते हैं कि “कद कम है”, लेकिन आरती ने कहा — “मंज़िल का कद मेरे हौसलों से मापा जाता है।”
+जब सामाजिक धारणाएँ सीमा बनकर खड़ी हुईं, उन्होंने उसी को अपनी ताकत का ईंधन बनाया।
+आरती की सफलता बताती है कि किसी की सोच आपको छोटा नहीं कर सकती — जब आप खुद को बड़ा मानते हैं।
+उनकी कहानी हर युवा को यह विश्वास देती है कि “सच्ची क्षमता बाहरी नहीं, अपने आत्म-विश्वास में होती है।”
+                        </p>
+                        <div class="topper-profile">
+                            <img src="aarti.jpg" alt="Aarti" class="topper-img">
+                            <div class="topper-info">
+                                <h4 class="topper-name">IAS Aarti Dogra</h4>
+                                <span class="topper-rank">UPSC CSE 2005 (AIR-56)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="quote-icon-end">”</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<section class="stats-section">
+    <div class="header-text">
+        <h2>PreTestt is  Made for Students</h2>
+        <p>PreTestt App isn’t just an app —it’s a completely e-learning, just study, practice and grow up yourself.</p>
+    </div>
+
+    <div class="cards-container">
+        <div class="card card-blue">
+            <h3>Excellence of PreTestt</h3>
+            <p1>Better than books</p>
+            <p2>कहीं भी कभी भी </p2>
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Students Icon" class="card-icon">
+        </div>
+
+        <div class="card card-orange">
+            <h3>Excellence of Tests</h3>
+            <p>12years Year & Subject wise Pyqs</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/2641/2641457.png" alt="Test Icon" class="card-icon">
+        </div>
+
+        <div class="card card-purple full-width">
+            <h3>PreTestt Initiative</h3>
+            <p>Offline is also as Online</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/2997/2997235.png" alt="Class Icon" class="card-icon">
+        </div>
+    </div>
+</section>
+
+            
+
+<section class="features-container">
+            
+            <div class="feature-card reveal">
+                <div class="icon-box red-icon">
+                    <i class="fas fa-wifi pulse-animation"></i> 
+                </div>
+                <div class="text-box">
+                    <h3>Test Series</h3>
+                    <p>Premium Quality PYQS & Mocks</p>
+                </div>
+            </div>
+    
+            <div class="feature-card reveal">
+                <div class="icon-box yellow-icon">
+                    <i class="fas fa-circle-question bounce-animation"></i>
+                </div>
+                <div class="text-box">
+                    <h3>Current Affairs For 2026</h3>
+                    <p>Monthly Mocks & PDFs</p>
+                </div>
+            </div>
+    
+            <div class="feature-card reveal">
+                <div class="icon-box yellow-icon">
+                    <i class="fas fa-chart-simple grow-animation"></i>
+                </div>
+                <div class="text-box">
+                    <h3>Study Material </h3>
+                    <p>E-books And Notes</p>
+                </div>
+            </div>
+    
+        </section>
+            <footer class="app-footer">
+                <div class="footer-brand">
+                    <h2>📖✒️PreTestt✒️📖</h2>
+                    <p>India's Most Trusted Exam Preparation Platform</p>
+                </div>
+                <div class="motivation-box">
+    <div class="icon-circle">
+        <i id="daily-icon" class="fas fa-lightbulb"></i>
+    </div>
+    <div class="quote-content">
+        <p id="daily-text" class="quote-text">विचार लोड हो रहा है...</p>
+        <span class="quote-author">- DAILY BOOSTER</span>
+    </div>
+</div>
+
+                <div class="social-links">
+                    <a href="👉_FACEBOOK_LINK" class="social-btn" style="background: #3b5998;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="👉_YOUTUBE_LINK" class="social-btn" style="background: #ff0000;"><i class="fab fa-youtube"></i></a>
+                    <a href="👉_INSTAGRAM_LINK" class="social-btn" style="background: #e1306c;"><i class="fab fa-instagram"></i></a>
+                    <a href="👉_TWITTER_LINK" class="social-btn" style="background: #1da1f2;"><i class="fab fa-twitter"></i></a>
+                </div>
+                <div class="footer-divider"></div>
+                <p class="copyright-text">© 2026 All Rights Reserved.<br>PreTestt is designed in INDIA with ❤️ BY Rph Rohit Kumar sharma for Students.</p>
+            </footer>
+        </div>
+       
+  <div id="tests-page" class="hidden page-content" style="padding-bottom: 0;">
+            <div style="height: 135px; width: 100%;"></div> 
+            
+            <div class="lottie-header-mask">
+                <dotlottie-player 
+                    src="https://lottie.host/eb8968a5-563e-4624-bbda-971aab779545/pjCBdLB3Pg.lottie" 
+                    background="transparent" 
+                    speed="1" 
+                    style="width: 300px; height: 150px;" 
+                    loop autoplay>
+                </dotlottie-player>     
+            </div>
+            <h3 style="padding: 20px 20px 15px; font-size: 20px;" class="lang" data-en="Premium Tests (Basic to Hard Level) " data-hi="प्रीमियम परीक्षाऐं (आधारित से कठिन स्तर) ">Premium Tests (Basic to Hard Level) </h3>
+            
+            <div class="home-grid">
+                <div class="card exam-item" onclick="openExam('upsc')">
+                    <i class="fas fa-landmark exam-icon"></i><h4>UPSC GS1 & GS2</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('polity')">
+                    <i class="fas fa-gavel exam-icon" style="color:#f59e0b;"></i><h4>UPSC Polity</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('history')">
+                    <i class="fas fa-monument exam-icon" style="color:#8b5cf6;"></i><h4>UPSC History</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('geography')">
+                    <i class="fas fa-globe-asia exam-icon" style="color:#059669;"></i><h4>Geography</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('economy')">
+                    <i class="fas fa-chart-pie exam-icon" style="color:#10b981;"></i><h4>Economy</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('environment')">
+                    <i class="fas fa-leaf exam-icon" style="color:#16a34a;"></i><h4>Environment</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('science')">
+                    <i class="fas fa-atom exam-icon" style="color:#0ea5e9;"></i><h4>Science & Tech</h4>
+                </div>
+                <div class="card exam-item" onclick="openExam('current')">
+                    <i class="fas fa-newspaper exam-icon" style="color:#ef4444;"></i><h4>Current Affairs</h4>
+                </div>
+            </div> <div class="csat-section-container">
+                <h3 class="csat-header"> Premium CSAT Special</h3>
+                
+                <div class="horizontal-card" onclick="openExam('csat_math')" style="background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); border: 1px solid #fda4af;">
+                    <div class="h-card-icon" style="background: #e11d48; color: white;">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="h-card-info">
+                        <h4>CSAT Mathematics</h4>
+                        <p>Topic-wise & Practice Sets</p>
+                    </div>
+                    <div class="h-card-arrow">
+                        <i class="fas fa-chevron-right" style="color: #e11d48;"></i>
+                    </div>
+                </div>
+
+                <div class="horizontal-card" onclick="openExam('csat_reasoning')" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); border: 1px solid #a78bfa;">
+                    <div class="h-card-icon" style="background: #7c3aed; color: white;">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="h-card-info">
+                        <h4>CSAT Reasoning</h4>
+                        <p>Verbal & Non-Verbal Logic</p>
+                    </div>
+                    <div class="h-card-arrow">
+                        <i class="fas fa-chevron-right" style="color: #7c3aed;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <div id="free-test-page" class="hidden page-content" style="padding-bottom: 80px;">
+    
+    <div id="main-subject-list">
+        <div style="height: 80px; width: 100%;"></div> 
+        
+        <div class="lottie-header-mask">
+            <dotlottie-player 
+                src="https://lottie.host/e509f0a0-0ba7-4325-ae84-f7347ea886a6/r2T0ZHHffN.lottie" 
+                background="transparent" speed="1" style="width: 300px; height: 150px;" loop autoplay>
+            </dotlottie-player>     
+        </div>
+
+        <div style="padding: 0 20px;">
+            <h3 style="color: var(--primary);">Free Mock Tests</h3>
+            <p style="font-size: 12px; opacity: 0.7;">Select a subject to start practice</p>
+        </div>
+
+        <div id="freeSubjectGrid" class="subject-grid"></div>
+    </div>
+
+    <div id="subject-detail-view" style="display: none; padding-top: 80px; padding-left: 20px; padding-right: 20px;">
+        
+        <div style="display: flex; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+            <button onclick="closeSubjectDetail()" style="background: none; border: none; font-size: 16px; color: #333; margin-right: 15px; cursor: pointer; display: flex; align-items: center; font-weight: bold;">
+                <i class="fas fa-arrow-left"></i> &nbsp; Back
+            </button>
+            <h2 id="detail-title" style="margin: 0; color: var(--primary); font-size: 18px;">Subject Name</h2>
+        </div>
+
+        <div id="chapter-container" style="padding-bottom: 50px;"></div>
+    </div>
+
+</div>
+
+    
+        <div id="exam-papers-page" class="hidden page-content" style="padding-top: 20px;">
+            <div style="height: 0px; width: 100%;"></div>
+            <div style="padding: 0 20px 20px;">
+                <h2 id="exam-title" style="color: var(--primary);">Exam Name</h2>
+                <p style="font-size: 13px; opacity:0.7;">Select a paper to attempt</p>
+            </div>
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('tab1')" id="btn-tab1">Tab 1</button>
+                <button class="tab-btn" onclick="switchTab('tab2')" id="btn-tab2">Tab 2</button>
+            </div>
+            <div id="list-tab1" class="paper-list"></div>
+            <div id="list-tab2" class="paper-list hidden"></div>
+        </div>
+
+        <div id="edit-profile-page" class="hidden page-content">
+            <div style="height: 150px; width: 100%;"></div>
+
+            <div class="lottie-header-mask">
+        <dotlottie-player 
+            src="https://lottie.host/1da57995-4cf1-4ed3-bdbe-0ca47a02f65c/bplxNxNgPB.lottie" 
+            background="transparent" 
+            speed="1" 
+            style="width: 400px; height: 150px;" 
+            loop autoplay>
+        </dotlottie-player>     
+            </div>     
+            <div class="card" style="padding: 30px 20px; text-align: center;">
+                <h3 style="margin-bottom: 5px; color: var(--primary);">Complete Profile</h3>
+                <p style="font-size:12px; margin-bottom: 20px; opacity: 0.7;">Fill details to continue </p>
+                <p style="font-size:12px; margin-bottom: 20px; opacity: 0.7;">Image Size should be less than 2.5MB</p>
+                
+                <div style="position: relative; width: 100px; margin: 0 auto 15px;">
+                    <img id="preview-img" class="profile-img-preview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+                    <label for="file-input" onclick="return checkNetForImage(event)" style="position: absolute; bottom: 0; right: 0; background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid white;">
+                        <i class="fas fa-camera" style="font-size: 12px;"></i>
+                    </label>
+                </div>
+                <input type="file" id="file-input" hidden onchange="handleImage(this)">
+
+                <div style="text-align: left; margin-bottom: 10px;">
+                    <label style="font-size: 12px; margin-left: 5px;">Email ID (Verified)</label>
+                    <div class="input-wrap">
+                        <input type="text" id="reg-email" placeholder="Email" readonly style="opacity: 0.6; background: #e2e8f0 !important; color: #333;">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div style="text-align: left;">
+                    <label>Full Name</label>
+                    <div class="input-wrap"><input type="text" id="reg-name" placeholder="Student Name"><i class="fas fa-user"></i></div>
+
+                    <label>Mobile Number</label>
+                    <div class="input-wrap"><input type="tel" id="reg-phone" placeholder="10 Digit Mobile" maxlength="10" oninput="validateMobile(this)"><i class="fas fa-phone"></i></div>
+                    
+                    <label>Village</label>
+                    <div class="input-wrap"><input type="text" id="reg-village" placeholder="Village Name"><i class="fas fa-home"></i></div>
+                    
+                    <label>Tehsil</label>
+                    <div class="input-wrap"><input type="text" id="reg-tehsil" placeholder="Tehsil"><i class="fas fa-map-signs"></i></div>
+                    
+                    <label>District</label>
+                    <div class="input-wrap"><input type="text" id="reg-district" placeholder="District"><i class="fas fa-building"></i></div>
+                    
+                    <label>State</label>
+                    <div class="input-wrap"><input type="text" id="reg-state" placeholder="State"><i class="fas fa-map"></i></div>
+
+                    <button class="btn btn-primary" id="save-btn" onclick="saveProfile()">Save & Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-menu-page" class="hidden page-content">
+            <div style="height:150px; width: 100%;"></div>
+            <div class="lottie-header-mask">
+        <dotlottie-player 
+            src="https://lottie.host/9701044b-e838-4866-8158-a6ef2095217c/RfopHgbFBt.lottie" 
+            background="transparent" 
+            speed="1" 
+            style="width: 400px; height: 150px;" 
+            loop autoplay>
+        </dotlottie-player>     
+            </div>
+            <div class="info-header" style="border-radius: 0 0 30px 30px; margin-bottom: 20px; padding: 30px;">
+                <div class="user-photo-container">
+                    <img id="menu-photo" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="user-photo">
+                </div>
+                <h3 id="menu-name" style="color: white; margin-top: 10px;">Student Name</h3>
+                <p id="menu-email" style="color: rgba(255,255,255,0.8); font-size: 12px;">email@example.com</p>
+            </div>
+            <h4 style="margin-left: 5px; margin-bottom: 10px; opacity: 0.7;">App Settings</h4>
+            <div class="profile-menu-list">
+                <div class="p-menu-item" onclick="toggleDarkMode()">
+                    <i id="theme-icon" class="fas fa-moon" style="color: #6366f1;"></i> 
+                    <span id="theme-text">Dark Mode</span>
+                </div>
+
+                <div class="p-menu-item" onclick="showPage('refund-page')">
+    <i class="fas fa-file-invoice-dollar" style="color: #db2777;"></i> Refund Policy
+</div>
+
+                <div class="p-menu-item" onclick="showPage('contact-page')">
+                    <i class="fas fa-headset" style="color: #10b981;"></i> Contact Support
+                </div>
+                <div class="p-menu-item" onclick="showPage('policy-page')">
+                    <i class="fas fa-shield-alt" style="color: #f59e0b;"></i> Privacy Policy
+                </div>
+                <div class="p-menu-item" onclick="showPage('disclaimer-page')">
+                    <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i> Disclaimer
+                </div>
+                <div class="p-menu-item" onclick="showPage('copyright-page')">
+                    <i class="fas fa-copyright" style="color: #8b5cf6;"></i> Copyright
+                </div>
+                <div class="p-menu-item" onclick="confirmExit()">
+                    <i class="fas fa-door-open" style="color: #8b5cf6;"></i> Exit App
+                </div>
+                <div class="p-menu-item" onclick="signOut()" style="color: var(--danger);">
+                    <i class="fas fa-power-off"></i> Sign Out
+                </div>
+            </div>
+        </div>
+
+        <div id="contact-page" class="hidden page-content">
+            <div style="height: 0px; width: 100%;"></div>
+            <div style="height: 1px; width: 100%;"></div>
+
+            <div class="info-header">
+                <i class="fas fa-headset" style="font-size: 40px;"></i><h2>Contact Us</h2></div>
+            <div class="info-content">
+                <p>If you have any queries, please reach out to us.</p>
+                
+                <h4><i class="fas fa-map-marker-alt"></i> Address</h4>
+                <p>Dibai, Bulandshahar - 203393 - UttarPradesh </p>
+                
+                <h4><i class="fas fa-envelope"></i> Email Support</h4>
+                <p>pretesttapp@gmail.com</p>
+                
+                <h4><i class="fas fa-phone-alt"></i> Helpline</h4>
+                <p>pretesttapp@gmail.com</p>
+            </div>
+        </div>
+        
+        <div id="policy-page" class="hidden page-content">
+            <div style="height: 0px; width: 100%;"></div>
+
+            <div class="info-header">
+                <i class="fas fa-shield-alt" style="font-size: 40px;"></i>
+                <h2>Privacy Policy</h2>
+            </div>
+            <div class="info-content">
+                <p style="font-size: 12px; opacity: 0.7; margin-bottom: 15px;">Last updated: December 17, 2025</p>
+                
+                <p>Welcome to <strong>PreTestt</strong> ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this policy, or our practices with regards to your personal information, please contact us at <strong>pretesttapp@gmail.com</strong>.</p>
+
+                <h4>1. Information We Collect</h4>
+                <p>We collect personal information that you voluntarily provide to us when you register on the application. The personal information that we collect includes:</p>
+                <ul style="margin-left: 20px; margin-bottom: 15px; list-style-type: disc;">
+                    <li><strong>Personal Details:</strong> Name, Phone Number, Profile Photograph.</li>
+                    <li><strong>Demographic Data:</strong> Village, Tehsil, District, and State.</li>
+                    <li><strong>Performance Data:</strong> Mock test scores, attempted papers, and progress tracking.</li>
+                </ul>
+
+                <h4>2. How We Use Your Information</h4>
+                <p>We use the information we collect or receive for the following legitimate business purposes:</p>
+                <ul style="margin-left: 20px; margin-bottom: 15px; list-style-type: disc;">
+                    <li><strong>To facilitate account creation:</strong> We use your phone number to create a unique secure ID for you.</li>
+                    <li><strong>To track progress:</strong> We store your test results locally and in our secure database to generate performance reports/rankings.</li>
+                    <li><strong>To improve user experience:</strong> Your location data helps us suggest relevant regional exams (e.g., State Police).</li>
+                </ul>
+
+                <h4>3. Data Storage & Security</h4>
+                <p>We implement appropriate technical and organizational security measures designed to protect the security of any personal information we process. Your data is stored on secure servers (Google Firebase) and locally on your device.</p>
+
+                <h4>4. Sharing Information</h4>
+                <p>We <strong>DO NOT</strong> sell, trade, or rent your personal identification information to third-party marketing agencies. We may share generic aggregated demographic information not linked to any personal identification information regarding visitors and users with our business partners for analytical purposes.</p>
+
+                <h4>5. Contact Us</h4>
+                <p>If you have any questions about this Privacy Policy, please contact us:</p>
+                <p><strong>Email:</strong> pretesttapp@gmail.com</p>
+                <p><strong>Address:</strong> Dibai, Bulandshahar - 203393 - UttarPradesh</p>
+            </div>
+        </div>
+
+        <div id="disclaimer-page" class="hidden page-content">
+            <div style="height: 0px; width: 100%;"></div>
+
+            <div class="info-header">
+                <i class="fas fa-exclamation-circle" style="font-size: 40px;"></i>
+                <h2>Disclaimer</h2>
+            </div>
+            <div class="info-content">
+                <div style="background: rgba(254, 242, 242, 0.5); border: 1px solid #ef4444; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="color: #ef4444; margin-top:0;"><i class="fas fa-university"></i> NOT A GOVERNMENT APP</h4>
+                    <p style="font-size: 13px; margin-bottom: 0; color: #b91c1c;"><strong>PreTestt</strong> is an independent educational platform and is <strong>NOT</strong> affiliated, associated, authorized, endorsed by, or in any way officially connected with the Government of India, UPSC, SSC, Railway Board, or any other government agency.</p>
+                </div>
+
+                <h4>Content Accuracy</h4>
+                <p>The study material, mock tests, and information provided on this app are for educational and practice purposes only. While we strive to keep the information up to date and correct, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, or suitability of the information.</p>
+
+                <hr style="margin: 25px 0; border: 0; border-top: 1px solid var(--border-color);">
+
+                <h4>अस्वीकरण (Disclaimer in Hindi)</h4>
+                <p><strong>सरकारी संबंध नहीं:</strong> यह ऐप <strong>PreTestt</strong> एक निजी स्रोत है और इसका किसी भी सरकारी संस्था (जैसे UPSC, SSC, रेलवे) से कोई आधिकारिक संबंध नहीं है। हम किसी भी सरकारी नौकरी की गारंटी नहीं देते हैं।</p>
+                
+                <p><strong>सूचना की सटीकता:</strong> यहाँ दी गई जानकारी और मॉक टेस्ट केवल छात्रों के अभ्यास के लिए हैं। हालाँकि हम सटीकता का पूरा ध्यान रखते हैं, लेकिन मानवीय त्रुटि की संभावना हो सकती है। छात्रों को सलाह दी जाती है कि वे परीक्षा तिथियों और सिलेबस के लिए आधिकारिक सरकारी वेबसाइट देखें।</p>
+            </div>
+        </div>
+
+        <div id="copyright-page" class="hidden page-content">
+            <div style="height: 0px; width: 100%;"></div>
+
+            <div class="info-header">
+                <i class="fas fa-copyright" style="font-size: 40px;"></i>
+                <h2>Copyright</h2>
+            </div>
+            <div class="info-content" style="text-align: center;">
+                <i class="fas fa-code" style="color: var(--primary); font-size: 40px; margin-bottom: 15px;"></i>
+                
+                <h3 style="color: var(--text-dark);">© 2026 PreTestt</h3>
+                <p style="font-size: 13px; opacity: 0.7; margin-bottom: 25px;">Owned and Operated by Rph Rohit Kumar Sharma</p>
+                
+                <div style="text-align: left; background: var(--input-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 13px;">
+                    <p style="margin-bottom: 15px;"><strong>1. Intellectual Property Rights</strong><br>
+                    All content included in this app, such as text, graphics, logos, button icons, images, audio clips, digital downloads, data compilations, and software, is the property of the developer or its content suppliers and protected by Indian and international copyright laws.</p>
+                    
+                    <p style="margin-bottom: 15px;"><strong>2. Third-Party Trademarks</strong><br>
+                    "UPSC", "SSC", "NEET", "IBPS" and other exam names are trademarks of their respective owners. These are used in this app purely for identification and educational description purposes under "Fair Use" policy. We do not claim ownership of these trademarks.</p>
+
+                    <p style="margin-bottom: 0;"><strong>3. DMCA / Report Violation</strong><br>
+                    We respect the intellectual property of others. If you believe that your work has been copied in a way that constitutes copyright infringement, please contact us immediately at:<br>
+                    <a href="mailto:pretestt@gmail.com" style="color: var(--primary); font-weight: bold;">pretesttapp@gmail.com</a></p>
+                </div>
+                
+                <p style="margin-top: 30px; font-weight: 600; font-size: 14px; color: var(--primary);">PreTestt is made in INDIA with ❤️ for Students by Rph Rohit Kumar Sharma</p>
+            </div>
+        </div>
+      
+    </div>
+
+<div id="refund-page" class="hidden page-content">
+    <div style="height: 0px; width: 100%;"></div>
+
+    <div class="info-header">
+        <i class="fas fa-file-invoice-dollar" style="font-size: 40px;"></i>
+        <h2>Refund Policy</h2>
+    </div>
+
+    <div class="info-content" style="text-align: center;">
+        
+        <div style="text-align: left; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; font-family: 'Segoe UI', sans-serif; color: #334155;">
+            
+            <div style="text-align:center; margin-bottom:20px;">
+                <i class="fas fa-hand-holding-usd" style="font-size:40px; color:#db2777; margin-bottom:10px;"></i>
+                <h3 style="margin:0; color:#1e293b;">Cancellation & Refunds</h3>
+                <p style="font-size:12px; color:#64748b;">Transparent & Fair Billing</p>
+            </div>
+
+            <div style="background: #fff1f2; padding: 15px; border-radius: 8px; border: 1px solid #fda4af; margin-bottom: 20px;">
+                <p style="margin:0; color: #be123c; font-size: 13px;"><strong>⚠️ Important Note:</strong> PreTestt offers "Digital Goods" (Mock Tests & PDFs) which are consumed immediately upon access. Therefore, refunds are generally restricted.</p>
+            </div>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">1. General Refund Rules</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">All purchases made on PreTestt are <strong>Final and Non-Refundable</strong> except under the specific circumstances mentioned below. Once a subscription is active and content has been viewed, we cannot offer a refund.</p>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">2. Valid Scenarios for Refund</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">We will happily issue a 100% refund in the following cases:</p>
+            <ul style="padding-left: 20px; margin-bottom: 15px; font-size: 13px;">
+                <li><strong>Double Deduction:</strong> If your account was charged twice for a single transaction due to a server error.</li>
+                <li><strong>Transaction Failure:</strong> If money was deducted from your bank but the Premium Plan was not activated within 24 hours.</li>
+                <li><strong>Accidental Purchase (Strict Condition):</strong> If a refund request is raised within <strong>2 hours</strong> of purchase AND the user has <strong>not opened/attempted any mock test or PDF</strong>. Our system logs will be verified for this.</li>
+            </ul>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">3. Non-Refundable Scenarios</h4>
+            <ul style="padding-left: 20px; margin-bottom: 15px; font-size: 13px;">
+                <li>"I don't like the questions" (Please try our Free Tests before buying).</li>
+                <li>"I changed my mind" or "I don't have time to study".</li>
+                <li>Issues related to your slow internet connection or device lag.</li>
+                <li>Request made after 2 hours of purchase.</li>
+            </ul>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">4. Refund Timeline</h4>
+            <p style="font-size: 13px; margin-bottom: 10px;">Approved refunds are initiated within <strong>24-48 hours</strong>. It may take <strong>5-7 bank working days</strong> for the amount to reflect in your original payment source (UPI/Card/Wallet).</p>
+
+            <h4 style="color: #1e293b; margin-top: 20px; font-size: 15px; font-weight: 700;">5. Dispute Resolution</h4>
+            <p style="font-size: 13px; margin-bottom: 5px;">To claim a refund, follow these steps strictly:</p>
+            <ol style="padding-left: 20px; margin-bottom: 15px; font-size: 13px;">
+                <li>Email us at <a href="mailto:pretesttapp@gmail.com" style="color: var(--primary); font-weight: bold;">pretesttapp@gmail.com</a>.</li>
+                <li>Subject Line: "Refund Request - [Your Mobile Number]".</li>
+                <li>Attach the payment screenshot or <strong>Transaction ID</strong>.</li>
+            </ol>
+        </div>
+        
+        <p style="margin-top: 30px; font-weight: 600; font-size: 13px; color: var(--primary);">PreTestt is made in INDIA with ❤️ for Students</p>
+    </div>
+</div>
+
+
+    
+ <div class="bottom-navbar" id="bottom-nav" style="justify-content: space-between; padding: 0 10px;">
+    
+    <div class="nav-item active" onclick="showPage('home-page'); updateNav(this)">
+        <i class="fas fa-home"></i> <span>Home</span>
+    </div>
+
+    <div class="nav-item" onclick="showPage('tests-page'); updateNav(this)">
+        <i class="fas fa-book"></i> <span>PYQ</span>
+    </div>
+    
+    <div class="nav-center-wrapper">
+        <div class="heartbeat-btn" onclick="showPage('free-test-page'); removeActiveNav()">
+            <i class="fas fa-gift" style="font-size: 18px; margin-bottom: 2px;"></i>
+            <span>Free</span>
+        </div>
+    </div>
+
+    <div class="nav-item" onclick="populateProfile(false); showPage('edit-profile-page'); updateNav(this)">
+        <i class="fas fa-user"></i> <span>Profile</span>
+    </div>
+
+    <div class="nav-item" onclick="showPage('profile-menu-page'); updateNav(this)">
+        <i class="fas fa-cog"></i> <span>Settings</span>
+    </div>
+
+</div>
+
+
+
+    <script src="script.js"></script>
+
+<div id="legal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; z-index:99999; overflow-y:auto; animation: slideIn 0.3s ease-out;">
+    <div style="position: sticky; top: 0; background: #f8f9fa; padding: 15px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <button onclick="closePolicy()" style="background:none; border:none; font-size: 18px; font-weight: bold; color: #333; cursor: pointer; display: flex; align-items: center;">
+            <i class="fas fa-arrow-left"></i> &nbsp; Back
+        </button>
+        <h3 id="legal-title" style="margin:0 auto; font-size: 18px; color: #1a202c; position: absolute; left: 50%; transform: translateX(-50%);">Policy Page</h3>
+    </div>
+
+    <div id="legal-content" style="padding: 25px; line-height: 1.7; color: #2d3748; font-family: 'Segoe UI', Roboto, sans-serif; font-size: 14px;">
+        </div>
+</div>
+
+<style>
+@keyframes slideIn {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+ <style>
+    .legal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: #f8f9fa;
+        z-index: 10000;
+        overflow-y: auto;
+        animation: slideIn 0.3s ease-out;
+    }
+    .legal-header {
+        position: sticky;
+        top: 0;
+        background: white;
+        padding: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        z-index: 10001;
+    }
+    .legal-content {
+        padding: 20px 25px 80px 25px; /* Bottom padding for scrolling */
+        max-width: 800px;
+        margin: 0 auto;
+        font-family: 'Segoe UI', sans-serif;
+        line-height: 1.7;
+        color: #334155;
+        text-align: justify;
+    }
+    .legal-content h3 { color: #0f172a; margin-top: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+    .legal-content h4 { color: #1e293b; margin-top: 20px; font-size: 16px; font-weight: 700; }
+    .legal-content p, .legal-content li { font-size: 14px; margin-bottom: 10px; }
+    .legal-content ul { padding-left: 20px; margin-bottom: 15px; }
+    @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+</style>
+
+<div id="terms-modal" class="legal-overlay">
+    <div class="legal-header">
+        <button onclick="closePolicy('terms-modal')" style="background:none; border:none; font-size: 18px; font-weight: bold; color: #333; cursor: pointer;">&#8592; Back</button>
+        <h2 style="margin:0 auto; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Terms of Service</h2>
+    </div>
+    <div class="legal-content">
+        <div style="text-align:center; margin-bottom:20px;">
+            <i class="fas fa-file-contract" style="font-size:40px; color:#2563eb; margin-bottom:10px;"></i>
+            <h2 style="margin:0; color:#1e293b;">User Agreement</h2>
+            <p style="font-size:12px; color:#64748b;">Last Updated: January 20, 2026</p>
+        </div>
+
+        <p>Welcome to <strong>PreTestt</strong>. By downloading, accessing, or using our mobile application ("App") and services, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the App.</p>
+
+        <h4>1. Account Usage & Security</h4>
+        <ul>
+            <li><strong>Single User License:</strong> Your subscription is strictly personal. Sharing your login credentials (User ID/Password) with others is prohibited. PreTestt uses algorithms to detect simultaneous logins, and your account may be permanently blocked without refund if sharing is detected.</li>
+            <li><strong>Account Safety:</strong> You are responsible for maintaining the confidentiality of your account. Any activity that occurs under your account is your responsibility.</li>
+        </ul>
+
+        <h4>2. Intellectual Property Rights (Strict)</h4>
+        <p>All content available on PreTestt, including but not limited to Mock Tests, Questions, Solutions, PDFs, Video Explanations, Graphics, and Code, is the exclusive intellectual property of <strong>PreTestt</strong>.</p>
+        <ul>
+            <li><strong>Copying Prohibited:</strong> You may not copy, reproduce, distribute, or create derivative works from our content.</li>
+            <li><strong>Screen Recording:</strong> Taking screenshots or screen recordings of the premium content is strictly prohibited. Our app includes security features to detect and block such actions. Repeated attempts may lead to account suspension.</li>
+        </ul>
+
+        <h4>3. Payments & Subscriptions</h4>
+        <p>We offer paid subscription plans (e.g., Yearly Pass) that grant access to premium features. Prices are inclusive of applicable taxes. We reserve the right to change pricing at any time, but such changes will not affect active subscriptions.</p>
+
+        <h4>4. User Conduct</h4>
+        <p>You agree not to use the App for any unlawful purpose. Harassment, hate speech, or sharing harmful content in community sections (if available) will result in an immediate ban.</p>
+
+        <h4>5. Limitation of Liability</h4>
+        <p>While we strive for 100% accuracy in our Mock Tests, errors may occur. PreTestt is not liable for any loss of marks in actual exams due to reliance on our content. This App is a preparation tool, not a guarantee of selection.</p>
+
+        <br>
+        <div style="background:#eff6ff; padding:15px; border-radius:8px; border-left: 4px solid #2563eb;">
+            <strong>Note:</strong> We reserve the right to modify these terms at any time. Continued use of the app signifies your acceptance of the updated terms.
+        </div>
+        <br><br>
+    </div>
+</div>
+
+<div id="privacy-modal" class="legal-overlay">
+    <div class="legal-header">
+        <button onclick="closePolicy('privacy-modal')" style="background:none; border:none; font-size: 18px; font-weight: bold; color: #333; cursor: pointer;">&#8592; Back</button>
+        <h2 style="margin:0 auto; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Privacy Policy</h2>
+    </div>
+    <div class="legal-content">
+        <div style="text-align:center; margin-bottom:20px;">
+            <i class="fas fa-shield-alt" style="font-size:40px; color:#16a34a; margin-bottom:10px;"></i>
+            <h2 style="margin:0; color:#1e293b;">Data Privacy</h2>
+            <p style="font-size:12px; color:#64748b;">Effective Date: January 20, 2026</p>
+        </div>
+
+        <p>At <strong>PreTestt</strong>, we value your trust. This Privacy Policy explains how we collect, use, and protect your information when you use our exam preparation platform.</p>
+
+        <h4>1. Information We Collect</h4>
+        <ul>
+            <li><strong>Personal Information:</strong> When you register, we collect your Name, Email Address, Phone Number, and Profile Picture to create your unique identity.</li>
+            <li><strong>Academic Data:</strong> We track your Mock Test performance, scores, time taken per question, and strong/weak subject areas to provide personalized analytics.</li>
+            <li><strong>Device Information:</strong> We collect device ID, model, and OS version to optimize app performance and prevent fraud (e.g., multiple device logins).</li>
+        </ul>
+
+        <h4>2. How We Use Your Data</h4>
+        <ul>
+            <li><strong>Performance Analysis:</strong> To generate All India Ranks (AIR) and compare your performance with other students.</li>
+            <li><strong>Service Improvement:</strong> To identify bugs and improve the user interface.</li>
+            <li><strong>Communication:</strong> To send important exam notifications, subscription expiries, and daily study reminders.</li>
+        </ul>
+
+        <h4>3. Third-Party Services</h4>
+        <p>We use trusted third-party services to operate our app:</p>
+        <ul>
+            <li><strong>Google Firebase:</strong> For secure authentication and real-time database management.</li>
+            <li><strong>Razorpay:</strong> For processing secure payments. We <strong>do not</strong> store your credit card or banking details on our servers.</li>
+        </ul>
+
+        <h4>4. Data Security</h4>
+        <p>We implement industry-standard encryption protocols (SSL/TLS) to protect your data during transmission. Access to your personal data is restricted to authorized personnel only.</p>
+
+        <h4>5. Your Rights</h4>
+        <p>You have the right to request the deletion of your account and associated data. To do so, please contact our support team. Once deleted, your test history cannot be recovered.</p>
+
+        <br><br>
+    </div>
+</div>
+
+<div id="refund-modal" class="legal-overlay">
+    <div class="legal-header">
+        <button onclick="closePolicy('refund-modal')" style="background:none; border:none; font-size: 18px; font-weight: bold; color: #333; cursor: pointer;">&#8592; Back</button>
+        <h2 style="margin:0 auto; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Refund Policy</h2>
+    </div>
+    <div class="legal-content">
+        <div style="text-align:center; margin-bottom:20px;">
+            <i class="fas fa-hand-holding-usd" style="font-size:40px; color:#db2777; margin-bottom:10px;"></i>
+            <h2 style="margin:0; color:#1e293b;">Cancellation & Refunds</h2>
+            <p style="font-size:12px; color:#64748b;">Transparent & Fair Billing</p>
+        </div>
+
+        <div style="background: #fff1f2; padding: 15px; border-radius: 8px; border: 1px solid #fda4af; margin-bottom: 20px;">
+            <p style="margin:0; color: #be123c; font-size: 13px;"><strong>⚠️ Important Note:</strong> PreTestt offers "Digital Goods" (Mock Tests & PDFs) which are consumed immediately upon access. Therefore, refunds are generally restricted.</p>
+        </div>
+
+        <h4>1. General Refund Rules</h4>
+        <p>All purchases made on PreTestt are <strong>Final and Non-Refundable</strong> except under the specific circumstances mentioned below. Once a subscription is active and content has been viewed, we cannot offer a refund.</p>
+
+        <h4>2. Valid Scenarios for Refund</h4>
+        <p>We will happily issue a 100% refund in the following cases:</p>
+        <ul>
+            <li><strong>Double Deduction:</strong> If your account was charged twice for a single transaction due to a server error.</li>
+            <li><strong>Transaction Failure:</strong> If money was deducted from your bank but the Premium Plan was not activated within 24 hours.</li>
+            <li><strong>Accidental Purchase (Strict Condition):</strong> If a refund request is raised within <strong>2 hours</strong> of purchase AND the user has <strong>not opened/attempted any mock test or PDF</strong>. Our system logs will be verified for this.</li>
+        </ul>
+
+        <h4>3. Non-Refundable Scenarios</h4>
+        <p>Requests will be rejected in the following cases:</p>
+        <ul>
+            <li>"I don't like the questions" (Please try our Free Tests before buying).</li>
+            <li>"I changed my mind" or "I don't have time to study".</li>
+            <li>Issues related to your slow internet connection or device lag.</li>
+            <li>Request made after 2 hours of purchase.</li>
+        </ul>
+
+        <h4>4. Refund Timeline</h4>
+        <p>Approved refunds are initiated within <strong>24-48 hours</strong>. It may take <strong>5-7 bank working days</strong> for the amount to reflect in your original payment source (UPI/Card/Wallet).</p>
+
+        <h4>5. Dispute Resolution</h4>
+        <p>To claim a refund, follow these steps strictly:</p>
+        <ol>
+            <li>Email us at <strong>pretesttapp@gmail.com</strong>.</li>
+            <li>Subject Line: "Refund Request - [Your Mobile Number]".</li>
+            <li>Attach the payment screenshot or <strong>Transaction ID</strong>.</li>
+        </ol>
+
+        <br><br>
+        <button onclick="closePolicy('refund-modal')" style="width:100%; padding:15px; background:#1e293b; color:white; border:none; border-radius:10px; font-weight:bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">I Understand & Agree</button>
+        <br><br>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+    // Global function to open policies
+    window.openPolicy = function(id) {
+        // Hide all legal overlays first
+        document.querySelectorAll('.legal-overlay').forEach(function(el) {
+            el.style.display = 'none';
+        });
+
+        // Open the specific requested modal
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = 'block';
+            // Disable background scrolling
+            document.body.style.overflow = 'hidden';
+        } else {
+            console.error("Modal ID not found: " + id);
+        }
+    }
+
+    // Global function to close policies
+    window.closePolicy = function(id) {
+        if(id) {
+            document.getElementById(id).style.display = 'none';
+        } else {
+            document.querySelectorAll('.legal-overlay').forEach(function(el) {
+                el.style.display = 'none';
+            });
+        }
+        // Re-enable background scrolling
+        document.body.style.overflow = 'auto';
+    }
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(function(registration) {
+        console.log("Service Worker Registered");
+      })
+      .catch(function(error) {
+        console.log("SW registration failed:", error);
+      });
+  });
+}
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+</body
+  </html>

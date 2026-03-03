@@ -1,0 +1,798 @@
+/* =========================================
+   1. GLOBAL RESET & VARIABLES
+   ========================================= */
+html, body {
+    overscroll-behavior-y: none !important;
+    overscroll-behavior: none !important;
+    margin: 0; 
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    touch-action: manipulation;
+    background: var(--secondary); 
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: var(--text-dark); 
+    overflow-x: hidden; 
+    transition: background 0.5s, color 0.3s;
+}
+
+/* इमोजी फिक्स */
+.fix-emoji {
+    font-weight: normal; font-style: normal; display: inline-block;
+    color: initial; font-family: "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+}
+
+:root {
+    /* LIGHT MODE */
+    --primary: #4f46e5; --primary-dark: #3730a3;
+    --secondary: linear-gradient(180deg, #7dd3fc 0%, #eff6ff 50%, #ffffff 100%); 
+    --text-dark: #1e293b;
+    --card-bg: rgba(255, 255, 255, 0.65);
+    --input-bg: rgba(255, 255, 255, 0.5); --input-text: #1e293b;
+    --danger: #ef4444; --success: #10b981; --warning: #facc15;
+    --radius: 16px;
+    --gradient: linear-gradient(135deg, #4f46e5, #8b5cf6);
+    --header-gradient: linear-gradient(135deg, #1e1b4b, #312e81);
+    --border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* DARK MODE */
+body.dark-mode {
+    --primary: #38bdf8; --primary-dark: #0ea5e9;
+    --secondary: #000000; --text-dark: #f0f9ff;
+    --header-gradient: rgba(0, 0, 0, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.6);
+    --input-bg: rgba(255, 255, 255, 0.1); --input-text: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(180deg, #48DBFB 0%, #1a1a1a 60%, #121212 100%);
+    background-attachment: fixed;
+}
+
+/* =========================================
+   2. UTILITY CLASSES
+   ========================================= */
+.hidden { display: none !important; }
+
+.btn { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary { background: var(--gradient); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); width: 100%; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+.page-content {
+    padding-top: 135px !important; 
+    padding-bottom: 90px !important; 
+    min-height: 100vh;
+    position: relative; 
+    z-index: 1; 
+}
+
+/* VIP Crown Image Styling */
+.vip-badge-img {
+    height: 24px;           /* इमेज की ऊँचाई */
+    width: auto;            /* चौड़ाई अपने आप सेट होगी */
+    vertical-align: middle; /* टेक्स्ट के बीच में सेट करने के लिए */
+    margin-left: 5px;       /* नाम से थोड़ी दूरी */
+    margin-bottom: 4px;     /* थोड़ा ऊपर सेट करने के लिए */
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6)); /* हल्का सा गोल्ड ग्लो (Glow) */
+}
+
+/* =========================================
+   3. LOGIN PAGE FIX (Slim & Compact)
+   ========================================= */
+.full-center-page {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 90%; height: 100vh;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary);
+    padding: 20px !important;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 30px 20px;
+    border-radius: 24px;
+    
+    /* 👉 बदलाव: अब यह और पतला (Slim) हो गया है */
+    width: 80% !important;        
+    max-width: 320px; /* पहले 350px था, अब कम कर दिया */   
+    margin: 0 auto;    
+    
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    border: 1px solid white;
+}
+
+body.dark-mode .login-card {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.login-logo { width: 70px; height: 70px; border-radius: 0%; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+
+.google-btn {
+    display: flex; align-items: center; justify-content: center;
+    background: white; color: #3c4043; width: 100%; padding: 10px; /* पैडिंग थोड़ी कम की */
+    border-radius: 50px; border: 1px solid #dadce0;
+    font-weight: 500; font-size: 22px; gap: 0 !important; cursor: pointer; margin-top: 20px;
+}
+.google-btn img { width: 25px; height: 25px; margin-left: 10px; 
+    display: block;}
+
+/* =========================================
+   4. CARDS & INPUTS (PROFILE FIX)
+   ========================================= */
+.card { 
+    background: var(--card-bg); 
+    border-radius: var(--radius); 
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    overflow: hidden; position: relative; transition: 0.3s;
+}
+/* 👉 बदलाव: प्रोफाइल पेज का कार्ड भी अब पतला हो गया है */
+#edit-profile-page .card {
+    width: 80% !important; /* स्क्रीन का 85% */
+    max-width: 320px;      /* पहले 400px था, अब कम कर दिया */
+    margin: 10px auto !important;
+    padding: 25px 20px;
+    left: 0; right: 0;
+}
+.input-wrap { position: relative; margin-bottom: 15px; width: 100%; }
+.input-wrap input { 
+    width: 100% ; padding: 12px 10px 12px 40px; /* इनपुट बॉक्स की ऊंचाई थोड़ी कम की */
+    border: 2px solid var(--border-color); 
+    border-radius: 12px; font-size: 15px; outline: none; 
+    box-sizing: border-box;
+    background: var(--input-bg); color: var(--input-text);
+}
+.input-wrap input:focus { border-color: var(--primary); background: var(--card-bg); }
+.input-wrap i { position: absolute; left: 12px; top: 14px; color: #94a3b8; font-size: 15px; }
+.input-wrap input.invalid { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+
+/* =========================================
+   5. HEADER & NAVIGATION
+   ========================================= */
+.top-nav-container {
+    position: fixed; top: 10px; left: 15px; right: 15px; z-index: 1000;
+    background: var(--card-bg); padding: 8px 15px; border-radius: 50px;
+    display: flex; justify-content: space-between; align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+.app-title {
+    display: flex; align-items: center; justify-content: center;
+    position: absolute; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; width: max-content; max-width: 60%;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.app-logo-text {
+    background: linear-gradient(90deg, #2563eb 0%, #06b6d4 50%, #10b981 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px; font-weight: 800;
+}
+/* Purana code hata kar ye lagayein */
+body.dark-mode .app-logo-text {
+    /* Humne colors ko thoda bright kiya hai taaki dark mode mein chamke */
+    background: linear-gradient(90deg, #60a5fa 0%, #22d3ee 50%, #34d399 100%);
+    
+    /* Ye text ke andar gradient bharta hai */
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+}
+
+
+.lang-btn { background: #eef2ff; color: var(--primary); border: 1px solid #c7d2fe; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+body.dark-mode .lang-btn { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+.nav-back-btn { font-size: 20px; color: var(--text-dark); padding: 10px; cursor: pointer; margin-right: 5px; }
+
+.greeting-section { 
+    position: fixed; top: 75px; left: 0; width: 100%; z-index: 900; 
+    padding: 5px 25px 15px; background: rgba(255, 255, 255, 0.01); 
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.greeting-text { font-size: 22px; font-weight: 700; color: var(--text-dark); }
+.greeting-sub { font-size: 13px; opacity: 0.7; }
+
+/* =========================================
+   6. SIDEBAR
+   ========================================= */
+#sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100%; background: var(--white); z-index: 4000; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 5px 0 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+body.dark-mode #sidebar { background: #0f172a; border-right: 1px solid rgba(255,255,255,0.1); }
+#sidebar.active { transform: translateX(0); }
+
+.sidebar-header { background: var(--header-gradient); padding: 30px 20px; text-align: center; color: white; border-bottom-right-radius: 30px; position: relative; overflow: hidden; }
+.sidebar-header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); animation: rotate 10s linear infinite; }
+@keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ✅ FIX APPLIED HERE: Added overflow: hidden to fix settings page image issue */
+.user-photo-container { 
+    width: 110px !important;       /* चौड़ाई फिक्स */
+    height: 110px !important;      /* ऊंचाई फिक्स (बराबर होनी चाहिए) */
+    min-width: 110px !important;   /* इसे पिचकने से रोकेगा */
+    min-height: 110px !important;  
+    
+    border-radius: 50% !important; /* पूरा गोल */
+    border: 3px solid #ffffff !important; 
+    
+    padding: 0px !important;       /* गैप को पूरी तरह खत्म करेगा */
+    margin: 0 auto 10px auto !important; 
+    
+    overflow: hidden !important;   /* इमेज बाहर नहीं निकलेगी */
+    background-color: #ffffff !important; /* अगर इमेज ट्रांसपेरेंट हो तो पीछे सफ़ेद रहे */
+    
+    display: flex !important;      /* इमेज को सेंटर में लॉक करने के लिए */
+    align-items: center !important;
+    justify-content: center !important;
+    
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    z-index: 5 !important;
+}
+
+/* इमेज को ज़ूम करके पूरे गोले में भरने के लिए */
+.user-photo { 
+    width: 100% !important; 
+    height: 100% !important; 
+    
+    object-fit: cover !important;  /* 🔥 यह सबसे जरुरी है: इमेज को काटेगा लेकिन पूरा भरेगा */
+    object-position: center !important; /* चेहरा बीच में रखेगा */
+    
+    border-radius: 0 !important;   /* कंटेनर पहले से गोल है, इसे 0 रखें */
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+}
+
+.menu-list { padding: 20px 15px; flex-grow: 1; overflow-y: auto; }
+.menu-item { padding: 14px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-dark); text-decoration: none; font-weight: 600; border-radius: 8px; transition: 0.2s; font-size: 15px; margin-bottom: 5px; border-left: 4px solid transparent; }
+.menu-item:hover { background: #fefce8; color: #854d0e; border-left-color: #facc15; transform: translateX(5px); }
+body.dark-mode .menu-item:hover { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-left-color: #38bdf8; }
+.menu-item i { width: 25px; font-size: 18px; color: #94a3b8; transition: 0.2s; }
+.menu-item:hover i { color: #eab308; } 
+body.dark-mode .menu-item:hover i { color: #38bdf8; }
+.back-menu-btn { background: #f1f5f9; margin-bottom: 15px; justify-content: center; color: #64748b; }
+body.dark-mode .back-menu-btn { background: rgba(255,255,255,0.05); color: #9ca3af; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; backdrop-filter: blur(3px); }
+.overlay.active { display: block; }
+
+
+/* =========================================
+   7. HOME GRID & SLIDER
+   ========================================= */
+.slider-wrapper { overflow: hidden; width: 100%; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 25px; position: relative; }
+.slider-track { display: flex; transition: transform 0.5s ease-in-out; }
+.slide { 
+    min-width: 100%; 
+    height: auto;           
+    aspect-ratio: 16/9;     
+    position: relative; 
+    cursor: pointer; 
+}
+
+.slide img { 
+    width: 100%; 
+    height: 500px; 
+    object-fit: contain;       
+    object-position: bottom;   
+    display: block;
+}
+
+.slide-caption { position: absolute; bottom: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; padding: 15px; font-size: 14px; }
+
+.home-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 0 20px; }
+.exam-item { padding: 25px 15px; text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid transparent; background: var(--card-bg); }
+.exam-item:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.15); }
+.exam-icon { font-size: 32px; margin-bottom: 12px; display: inline-block; padding: 15px; border-radius: 50%; background: #f5f3ff; color: var(--primary); }
+body.dark-mode .exam-icon { background: rgba(56, 189, 248, 0.1); }
+
+/* =========================================
+   8. PAPERS & EXAMS
+   ========================================= */
+.paper-row { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 15px; margin-bottom: 12px; border-radius: 12px; border: 1px solid var(--border-color); }
+.action-group { display: flex; align-items: center; gap: 15px; }
+.attempt-btn { background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+.like-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #cbd5e1; transition: 0.2s; }
+.like-btn.liked { color: #ef4444; animation: pop 0.3s ease; }
+@keyframes pop { 50% { transform: scale(1.3); } }
+
+/* =========================================
+   9. EDIT PROFILE (FIXED HERE)
+   ========================================= */
+/* ✅ FIX APPLIED: Increased size and added object-fit */
+
+.profile-img-preview { 
+    width: 140px !important;           /* चौड़ाई फिक्स */
+    height: 140px !important;          /* ऊंचाई फिक्स */
+    min-width: 140px !important;       /* पिचकने से रोकेगा */
+    min-height: 140px !important;
+
+    border-radius: 50% !important;     /* पूरा गोल */
+    object-fit: cover !important;      /* 🔥 इमेज को ज़ूम करके पूरे गोले में भरेगा */
+    object-position: center !important; /* चेहरे को बीच में रखेगा */
+
+    border: 4px solid #e0e7ff !important; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    background-color: #ffffff !important; /* अगर इमेज ट्रांसपेरेंट हो तो पीछे सफ़ेद रहे */
+
+    margin: 0 auto 15px !important;    /* सेंटर में लाने के लिए */
+    display: block !important;
+    padding: 0 !important;             /* कोई गैप नहीं */
+}
+
+.profile-menu-list { margin-top: 20px; background: var(--card-bg); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-color); }
+.p-menu-item { padding: 15px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-dark); font-weight: 600; border-bottom: 1px solid var(--border-color); transition: 0.2s; cursor: pointer; }
+.p-menu-item:last-child { border-bottom: none; }
+.p-menu-item:hover { background: rgba(0,0,0,0.03); }
+
+#edit-profile-page .card {
+    background: rgba(0, 0, 0, 0.20) !important;
+    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2); color: #ffffff !important;
+}
+#edit-profile-page h3, #edit-profile-page label, #edit-profile-page .input-wrap i { color: #ffffff !important; }
+#edit-profile-page input { background: rgba(255, 255, 255, 0.1) !important; color: white !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; }
+#edit-profile-page p { color: #ddd !important; }
+
+/* =========================================
+   10. FOOTER & BOTTOM NAV
+   ========================================= */
+.app-footer { background: linear-gradient(to bottom, #1e293b, #0f172a); color: #e2e8f0; padding: 40px 20px 20px; margin-top: 40px; border-radius: 30px 30px 0 0; text-align: center; position: relative; margin-bottom:0px;}
+body.dark-mode .app-footer { background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+.footer-brand h2 { font-size: 22px; color: white; margin-bottom: 5px; font-weight: 800; letter-spacing: 1px; }
+.footer-brand p { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+.social-links { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+.social-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; transition: 0.3s; text-decoration: none; }
+.social-btn:hover { background: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
+.footer-divider { height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0; }
+.copyright-text { font-size: 11px; color: #ffffff; }
+
+/* Motivation Section */
+.motivation-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    padding: 25px 20px;
+    border-radius: 20px;
+    margin: 20px 0 30px;
+    display: flex; flex-direction: column; align-items: center; gap: 15px;
+    backdrop-filter: blur(10px);
+    animation: borderGlow 3s infinite ease-in-out;
+}
+@keyframes borderGlow {
+    0% { border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 0 0 transparent; }
+    50% { border-color: #00bfff; box-shadow: 0 0 20px rgba(0, 191, 255, 0.5); transform: scale(1.02); }
+    100% { border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 0 0 transparent; transform: scale(1); }
+}
+
+.quote-text {
+    background: linear-gradient(to right, #ffffff 20%, #00bfff 50%, #ffffff 80%);
+    background-size: 200% auto;
+    color: #ffffff; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: textShine 3s linear infinite; font-weight: 700; font-size: 16px; line-height: 1.5; margin-bottom: 8px; font-style: italic; font-family: 'Hind', sans-serif;
+}
+@keyframes textShine { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+
+.icon-circle { width: 60px; height: 60px; background: linear-gradient(135deg, #FFD700, #ff8c00); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+.icon-circle i { font-size: 28px; color: white; animation: iconPulse 2s infinite ease-in-out; }
+@keyframes iconPulse {
+    0% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+    50% { transform: scale(1.2); text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+    100% { transform: scale(1); text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); }
+}
+.quote-content { text-align: center; }
+.quote-author { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #38bdf8; font-weight: 700; }
+
+/* Bottom Nav */
+.bottom-navbar {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+    background: var(--card-bg);
+    display: flex; justify-content: space-around; align-items: center;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    z-index: 1000; border-top: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+.nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #94a3b8; font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; 
+    width: 25%;
+}
+.nav-item i { font-size: 20px; margin-bottom: 4px; }
+.nav-item.active { color: var(--primary); }
+.nav-item i.fa-cog { animation: spin 4s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* =========================================
+   11. SPLASH & ANIMATIONS
+   ========================================= */
+#splash { position: fixed; inset: 0; background: #000000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; }
+.splash-logo { width: 130px; height: 130px; border-radius: 0px; margin-bottom: 20px; animation: float 3s ease-in-out infinite; box-shadow: 0 10px 25px rgba(0,0,0,0.2); object-fit: cover; }
+@keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+.fly-in-container { display: flex; justify-content: center; align-items: center; gap: 3px; margin-top: 15px; font-size: 60px; font-weight: 900; overflow: hidden; }
+.fly-in-container span { display: inline-block; opacity: 0; background: linear-gradient(90deg, #2563eb 0%, #06b6d4 50%, #10b981 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); animation: flyInLetter 0.8s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards; animation-delay: calc(0.1s * var(--i)); }
+@keyframes flyInLetter { 0% { opacity: 0; transform: translateY(100px) scale(2) rotate(20deg); filter: blur(10px); } 100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); filter: blur(0px); } }
+
+.loading-text { font-size: 18px; font-weight: bold; margin-top: 10px; color: #FFD700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+.progress-bar-bg { width: 220px; height: 10px; background: rgba(0,0,0,0.2); border-radius: 20px; margin-top: 15px; overflow: hidden; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, #FFD700, #ff8c00); width: 0%; border-radius: 20px; transition: width 0.1s linear; box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+
+/* =========================================
+   12. INFO PAGES, TOAST & LEGAL
+   ========================================= */
+.info-header { background: var(--gradient); padding: 40px 20px; color: white; text-align: center; border-radius: 0 0 30px 30px; margin-bottom: 25px; }
+.info-content { padding: 0 25px; color: var(--text-dark); line-height: 1.7; font-size: 14px; text-align: justify; padding-bottom: 0px; margin-bottom: 0px;}
+.info-content h4 { color: var(--primary); margin-top: 20px; margin-bottom: 5px; font-size: 16px; }
+
+.tab-nav { display: flex; padding: 0 20px; margin-bottom: 15px; gap: 10px; }
+.tab-btn { flex: 1; padding: 12px; border: none; background: #e0e7ff; color: var(--primary); border-radius: 10px; font-weight: 600; cursor: pointer; opacity: 0.7; }
+body.dark-mode .tab-btn { background: rgba(255,255,255,0.1); color: var(--text-dark); }
+.tab-btn.active { background: var(--primary); color: white; opacity: 1; }
+
+#toast { visibility: hidden; min-width: 280px; margin-left: -140px; background-color: #333; color: #fff; border-radius: 50px; padding: 12px 20px; position: fixed; z-index: 3000; left: 50%; bottom: 30px; font-size: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; gap: 12px; }
+.toast-logo { width: 25px; height: 25px; object-fit: contain; }
+#toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal-box { background: var(--card-bg); width: 85%; max-width: 320px; border-radius: 20px; padding: 25px; text-align: center; transform: scale(0.9); transition: 0.3s; border: 1px solid var(--border-color); }
+body.dark-mode .modal-box { backdrop-filter: blur(15px); }
+.modal-overlay.active .modal-box { transform: scale(1); }
+.modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+.btn-yes { background: var(--danger); color: white; flex: 1; padding: 10px; border-radius: 8px; border:none; cursor: pointer; }
+.btn-no { background: #e2e8f0; color: #333; flex: 1; padding: 10px; border-radius: 8px; border:none; cursor: pointer; }
+
+/* Dark Mode Info Fix */
+body.dark-mode .info-content { background: rgba(255, 255, 255, 0.2) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #000000; color: #000000 !important; border-radius: 16px; margin: 15px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+body.dark-mode .info-content h4, body.dark-mode .info-content p, body.dark-mode .info-content li, body.dark-mode .info-content a, body.dark-mode .info-content strong { color: #000000 !important; text-shadow: none; }
+body.dark-mode .info-header { border-bottom: 1px solid #000000; }
+
+@keyframes bye-wave {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }  
+  50% { transform: rotate(-15deg); } 
+  75% { transform: rotate(10deg); }  
+  100% { transform: rotate(0deg); }  
+}
+.waving-hand { display: inline-block; transform-origin: 70% 75%; animation: bye-wave 2s infinite ease-in-out; }
+
+/* Legal Pages Overlay */
+.legal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #ffffff; z-index: 10000; overflow-y: auto; font-family: Arial, sans-serif; }
+.legal-header { position: sticky; top: 0; background-color: #fff; border-bottom: 1px solid #e0e0e0; padding: 15px; display: flex; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.legal-header h2 { flex-grow: 1; text-align: center; font-size: 18px; margin: 0; margin-right: 40px; color: #333; }
+.back-btn { background: none; border: none; font-size: 16px; color: #1a73e8; font-weight: bold; cursor: pointer; padding: 5px 10px; }
+.legal-content { padding: 20px; max-width: 800px; margin: 0 auto; color: #444; line-height: 1.6; }
+.legal-content h3 { color: #000; margin-top: 20px; }
+.legal-content h4 { color: #222; margin-top: 15px; margin-bottom: 5px; }
+
+canvas { display: block; position: fixed; z-index: 9999; pointer-events: none; }
+
+/* Selection Prevention */
+img { -webkit-touch-callout: none !important; -webkit-user-select: none !important; -khtml-user-select: none !important; -moz-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-user-drag: none !important; }
+body { -webkit-user-select: none !important; -moz-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-touch-callout: none !important; }
+input, textarea { -webkit-user-select: text !important; -moz-user-select: text !important; -ms-user-select: text !important; user-select: text !important; }
+
+/* ================= NEW SUBSCRIPTION UI ================= */
+.sub-container { background: #f8fafc; width: 100%; height: 100%; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; overflow: hidden; }
+.sub-header { background: #1e293b; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.sub-body { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; }
+.feature-list { background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.f-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+.f-item:last-child { border-bottom: none; }
+.f-item i { color: #16a34a; font-size: 18px; }
+.plan-card { background: #eff6ff; border: 2px solid #2563eb; border-radius: 15px; padding: 20px; text-align: center; position: relative; margin: 10px auto; width: 90%; max-width: 300px; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15); }
+.tick-mark { position: absolute; top: -10px; right: -10px; background: #2563eb; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; }
+.price-tag { font-size: 28px; font-weight: 800; color: #1e293b; margin: 5px 0; }
+.coupon-section { display: flex; gap: 5px; margin-top: 20px; justify-content: center; }
+#coupon-input { padding: 10px; border: 1px solid #ccc; border-radius: 8px; width: 60%; text-align: center; font-weight: bold; letter-spacing: 1px; }
+.apply-btn { background: #2563eb; color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.buy-now-btn { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; color: white; padding: 15px; font-size: 18px; border: none; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.buy-now-btn:active { background: #0f172a; }
+
+/* --- Topper Slider CSS --- */
+.topper-slider-section { padding: 25px 0; background: transparent; overflow: hidden; display: flex; justify-content: center; width: 100%; opacity: 1 !important; visibility: visible !important; }
+.topper-track-container { width: 100%; overflow: hidden; position: relative; padding: 0; margin: 0; }
+.topper-track { display: flex; width: 100%; will-change: transform; cursor: grab; }
+.topper-slide { min-width: 100%; flex: 0 0 100%; padding: 0 15px; box-sizing: border-box; display: flex; justify-content: center; opacity: 1; transition: transform 0.5s ease; transform-style: preserve-3d; }
+.topper-card { background: #161b2c; border-radius: 16px; padding: 25px 20px; width: 100%; position: relative; box-shadow: 0 8px 25px rgba(0,0,0,0.5); overflow: hidden; min-height: 250px; display: flex; flex-direction: column; justify-content: space-between; }
+.topper-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 16px; padding: 2px; background: linear-gradient(45deg, #FFD700, #0074D9, #FFD700); background-size: 300% 300%; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; z-index: 0; animation: borderShine 3s linear infinite; }
+@keyframes borderShine { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+.card-content { position: relative; z-index: 1; overflow: hidden; }
+.testimonial-text, .topper-profile { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+.topper-slide.active .testimonial-text { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+.topper-slide.active .topper-profile { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+
+.quote-icon { font-size: 40px; color: #d32f2f; line-height: 1; margin-bottom: 10px; opacity: 0.8;}
+.quote-icon-end { font-size: 40px; color: #d32f2f; line-height: 1; text-align: right; margin-top: 10px; opacity: 0.8;}
+.testimonial-text { font-size: 15px; line-height: 1.6; color: #e0e0e0; font-style: italic; }
+
+.topper-profile { display: flex; align-items: center; justify-content: flex-start; margin-top: 20px; width: 100%; position: relative; z-index: 2; }
+.topper-img { width: 60px !important; height: 60px !important; min-width: 60px !important; flex-shrink: 0 !important; border-radius: 50%; object-fit: cover; border: 3px solid #0074D9; margin-right: 15px; background-color: #161b2c; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+.topper-info { display: flex; flex-direction: column; justify-content: center; flex: 1; overflow: hidden; }
+.topper-info h4 { margin: 0; font-size: 17px; color: #fff; text-transform: uppercase; font-weight: 700; white-space: nowrap; }
+.topper-rank { font-size: 13px; color: #0074D9; font-weight: bold; display: block; margin-top: 4px;}
+
+/* Extra Animations & Containers */
+.features-container { display: flex; flex-direction: column; gap: 20px; padding: 20px; background-color: #f5f5f5; align-items: center; }
+.feature-card { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 20px; border: 1px solid #eee; opacity: 0; transform: translateY(50px); transition: all 0.8s ease-out; }
+.feature-card.active { opacity: 1; transform: translateY(0); }
+.text-box h3 { margin: 0; font-size: 18px; color: #e91e63; font-family: sans-serif; }
+.text-box p { margin: 5px 0 0; color: #555; font-size: 14px; }
+.icon-box { font-size: 30px; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center; }
+.red-icon { color: #e91e63; }
+.yellow-icon { color: #fbc02d; }
+
+.pulse-animation { animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+.bounce-animation { animation: bounce 2s infinite; }
+@keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+.grow-animation { animation: grow 3s infinite alternate; }
+@keyframes grow { 0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(5deg); } }
+
+/* Stats & Extra Cards */
+.stats-section { text-align: center; padding: 20px; background-color: #0d1b2a; color: white; font-family: sans-serif; }
+.header-text h2 { font-size: 24px; margin-bottom: 10px; }
+.header-text p { font-size: 14px; color: #ccc; margin-bottom: 30px; }
+.cards-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.card { border-radius: 15px; padding: 20px; text-align: center; color: black; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.card-blue { background-color: #bde0fe; }
+.card-orange { background-color: #ffcfd2; }
+.card-purple { background-color: #d0bdf4; }
+.full-width { grid-column: span 2; }
+.card h3 { font-size: 22px; margin: 0; font-weight: bold; }
+.card p { font-size: 14px; margin: 5px 0 15px 0; }
+.card-icon { width: 50px; height: 50px; }
+
+/* Final Adjustments */
+.lottie-header-mask { position: fixed; top: 0; left: 0; width: 100%; height: 150px; background: var(--secondary); z-index: 5; display: flex; justify-content: center; align-items: flex-start; padding-top: 150px; pointer-events: none; }
+.content-pusher { width: 100%; display: block; height: 100px; }
+
+
+    /* --- स्टेप 1: इसे </head> से ठीक पहले पेस्ट करें --- */
+
+    /* हार्टबीट बटन (बीच वाला) */
+    .nav-center-wrapper {
+        position: relative;
+        top: -25px; /* बटन को ऊपर उठाता है */
+        z-index: 1002;
+    }
+    
+    .heartbeat-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #FFD700; /* पीला रंग */
+        border: 4px solid #fff;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        font-weight: bold;
+        font-size: 10px;
+        animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+    }
+
+    /* फ्री टेस्ट पेज के कार्ड्स */
+    .subject-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .subject-card {
+        background: white;
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .subject-card:active { transform: scale(0.95); }
+    
+    /* चैप्टर लिस्ट (Dropdown) */
+    .chapter-list {
+        display: none;
+        margin-top: 10px;
+        text-align: left;
+        border-top: 1px dashed #ccc;
+        padding-top: 5px;
+    }
+
+    .chapter-item {
+        display: block;
+        background: #f0f9ff;
+        margin-bottom: 5px;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 12px;
+        text-decoration: none;
+        color: #0369a1;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .start-btn-xs {
+        background: #22c55e;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 10px;
+    }
+
+/* --- इसको अपने CSS में सबसे नीचे जोड़ दें --- */
+.hidden {
+    display: none !important;
+}
+/* =========================================
+   FREE TEST CARD COLORS (FINAL FIX)
+   ========================================= */
+
+/* 1. लाइट मोड (Light Mode) - नॉर्मल */
+.subject-card {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #e2e8f0;
+}
+
+/* लाइट मोड में टेक्स्ट का कलर */
+.subject-card h4, 
+.subject-card p {
+    color: #333333;
+}
+
+/* 2. डार्क मोड (Dark Mode) - सुधारा हुआ */
+body.dark-mode .subject-card {
+    /* बैकग्राउंड: सफेद रंग 60% दृश्यता के साथ (White with 0.6 opacity) */
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    
+    /* बॉर्डर को भी हल्का सफेद करें */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    
+    /* ग्लास इफेक्ट (धुंधलापन) */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* --- टेक्स्ट को काला करें (Icons को नहीं) --- */
+body.dark-mode .subject-card h4, 
+body.dark-mode .subject-card p {
+    color: #000000 !important; /* सिर्फ हेडिंग और पैराग्राफ काला होगा */
+    font-weight: 600; /* थोड़ा मोटा करें ताकि वाइट पर साफ दिखे */
+}
+
+/* --- आइकन्स की सुरक्षा (Icon Protection) --- */
+/* यह कोड सुनिश्चित करेगा कि आइकन अपने ओरिजिनल कलर में रहें */
+body.dark-mode .subject-card i {
+    /* यहाँ हम color सेट नहीं करेंगे, ताकि वह JavaScript वाला कलर ले */
+    text-shadow: none !important;
+}
+
+/* --- अंदर वाले पेज (Chapter List) के लिए --- */
+body.dark-mode .chapter-item {
+    background-color: rgba(255, 255, 255, 0.8) !important; 
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* चैप्टर के नाम काले रहें */
+body.dark-mode .chapter-item,
+body.dark-mode .chapter-item span,
+body.dark-mode .chapter-item a {
+    color: #000000 !important;
+}
+
+/* बैक बटन (Back Button) को डार्क मोड में साफ़ दिखाएं */
+body.dark-mode #subject-detail-view button {
+    color: #ffffff !important; /* बैक बटन सफेद */
+}
+
+body.dark-mode #subject-detail-view h2 {
+    /* टाइटल का कलर ओरिजिनल रहे, इसलिए इसे फोर्स नहीं करेंगे */
+    /* text-shadow: 0 1px 3px rgba(0,0,0,0.5); अगर टाइटल नहीं दिख रहा तो यह लाइन खोल दें */
+}
+
+
+/* =========================================
+   FIX: CSAT CARD DESIGN (Internal Layout)
+   ========================================= */
+
+.horizontal-card {
+    /* यह सबसे ज़रूरी है: चीजें अगल-बगल लाने के लिए */
+    display: flex !important;
+    flex-direction: row !important; 
+    align-items: center !important;
+    justify-content: flex-start !important;
+    
+    padding: 15px !important;
+    border-radius: 16px !important;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+    width: 100% !important;
+    box-sizing: border-box;
+    margin-bottom: 15px !important;
+    background: white;
+    min-height: 80px !important; /* कार्ड को पिचकने से रोकेगा */
+}
+
+/* आइकन को फिक्स करना (ताकि वह फैले नहीं) */
+.h-card-icon {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important; /* यह लाइन उसे छोटा होने से रोकेगी */
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 22px !important;
+    margin-right: 15px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    flex-shrink: 0 !important; /* यह लाइन उसे दबने से रोकेगी */
+}
+
+/* टेक्स्ट की सेटिंग */
+.h-card-info {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    text-align: left !important;
+}
+
+.h-card-info h4 {
+    margin: 0 !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #333 !important;
+    line-height: 1.2 !important;
+}
+
+.h-card-info p {
+    margin: 4px 0 0 !important;
+    font-size: 12px !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+}
+
+/* तीर (Arrow) को सही करना */
+.h-card-arrow {
+    font-size: 14px !important;
+    opacity: 0.7;
+    margin-left: 10px !important;
+    display: block !important;
+}
+
+/* डार्क मोड फिक्स */
+body.dark-mode .horizontal-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-mode .h-card-info h4 { color: white !important; }
+body.dark-mode .h-card-info p { color: #ccc !important; }
