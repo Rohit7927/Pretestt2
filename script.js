@@ -2,7 +2,7 @@
 //  🛡️ SECURITY & ANTI-COPY SYSTEM
 // ====================================================================
 (function() {
-    const authorizedDomain = "www.pretestt.com"; 
+    const authorizedDomain = "pretestt2.vercel.app"; 
     function runSecurity() {
         const hostname = window.location.hostname;
         const protocol = window.location.protocol;
